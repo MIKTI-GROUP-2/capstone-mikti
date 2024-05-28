@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:1-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - mikti-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DBPASS}
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_DB=${DBNAME}
+
+  api:
+    image: irvanhau/capstone-mikti
+    container_name: ticketing-app
+    depends_on:
+      db:
+        condition: service_healthy
+        required: true
+    environment:
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
+      - DBHOST=db
+      - DBPORT=${DBPORT}
+      - DBNAME=${DBNAME}
+      - SERVER=${SERVER}
+      - SECRET=${SECRET}
+      - REFSECRET=${REFSECRET}
+      - EMAIL=${EMAIL}
+      - PASSWORD=${PASSWORD}
+    ports:
+      - '8888:80'
+    networks:
+      - mikti
+    volumes:
+      - api:/usr/src/app/
+
+networks:
+  mikti:
+    driver: bridge
+
+
+volumes:
+  mikti-db:
+  api:
