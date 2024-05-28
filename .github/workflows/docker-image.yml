@@ -31,6 +31,7 @@ jobs:
           DB_PASS: ${{ secrets.DBPASS }}
           DB_PORT: ${{ secrets.DBPORT }}
           DB_NAME: ${{ secrets.DBNAME }}
+          DB_HOST: ${{ secrets.DBHOST }}
           SERVER_PORT: ${{ secrets.SERVER }}
           JWT_SECRET: ${{ secrets.JWTSECRET }}
           REF_SECRET: ${{ secrets.REFSECRET }}
@@ -41,12 +42,13 @@ jobs:
           username: ${{secrets.USERNAME}}
           key: ${{secrets.KEY}}
           port: ${{secrets.PORT}}
-          envs: DB_USER, DB_PASS, DB_PORT, DB_NAME,SERVER_PORT,JWT_SECRET,REF_SECRET,EMAIL_SENDER,EMAIL_PASSWORD_SENDER
+          envs: DB_USER, DB_PASS, DB_PORT, DB_NAME,SERVER_PORT,JWT_SECRET,REF_SECRET,EMAIL_SENDER,EMAIL_PASSWORD_SENDER,DB_HOST
           script: |
             export DBUSER=$DB_USER
             export DBPASS=$DB_PASS
             export DBPORT=$DB_PORT
             export DBNAME=$DB_NAME
+            export DBHOST=$DB_HOST
             export SERVER=$SERVER_PORT
             export SECRET=$JWT_SECRET
             export REFSECRET=$REF_SECRET
