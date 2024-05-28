@@ -46,3 +46,13 @@ Response
 ## Project Structure
 
 Clean Architecture
+
+## How To Use
+
+- ```git clone https://github.com/irvanhau/capstone-mikti.git```
+- ```cp .env.example .env```
+- create the database first
+- change .env with your config
+- ```go mod tidy```
+- ```go run main.go wire_gen.go```
+- 
