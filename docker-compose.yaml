@@ -27,7 +27,7 @@ services:
     environment:
       - DBUSER=${DBUSER}
       - DBPASSWORD=${DBPASS}
-      - DBHOST=db
+      - DBHOST=ticketing-db
       - DBPORT=${DBPORT}
       - DBNAME=${DBNAME}
       - SERVER=${SERVER}
