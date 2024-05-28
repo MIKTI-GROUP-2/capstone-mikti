@@ -27,7 +27,7 @@ services:
     environment:
       - DBUSER=${DBUSER}
       - DBPASSWORD=${DBPASS}
-      - DBHOST=${DBHOST}
+      - DBHOST=db
       - DBPORT=${DBPORT}
       - DBNAME=${DBNAME}
       - SERVER=${SERVER}
