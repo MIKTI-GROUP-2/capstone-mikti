@@ -13,7 +13,7 @@ services:
       - POSTGRES_DB=${DBNAME}
 
   api:
-    image: irvanhau/capstone-mikti
+    image: irvanhau/ticketing-app
     container_name: ticketing-app
     depends_on:
       db:
