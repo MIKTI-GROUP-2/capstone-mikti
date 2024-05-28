@@ -6,6 +6,11 @@ services:
     image: postgres:16-alpine
     ports:
       - 5432:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - mikti-db:/var/lib/postgresql/data
     environment:
@@ -33,6 +38,9 @@ services:
       - mikti
     volumes:
       - api:/usr/src/app/
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 networks:
   mikti:
