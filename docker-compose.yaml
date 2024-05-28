@@ -1,8 +1,8 @@
 version: '3.9'
 
 services:
-  mikti-db:
-    container_name: mikti-db
+  ticketing-db:
+    container_name: ticketing-db
     image: postgres:16-alpine
     ports:
       - 5432:5432
@@ -21,7 +21,7 @@ services:
     networks:
       - mikti
 
-  mikti-api:
+  ticketing-api:
     image: irvanhau/ticketing-app
     container_name: ticketing-app
     environment:
@@ -42,7 +42,7 @@ services:
     volumes:
       - api:/usr/src/app/
     depends_on:
-      mikti-db:
+      ticketing-db:
         condition: service_healthy
 
 networks:
