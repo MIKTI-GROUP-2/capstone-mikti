@@ -17,6 +17,7 @@ services:
       - POSTGRES_PASSWORD=${DBPASS}
       - POSTGRES_USER=${DBUSER}
       - POSTGRES_DB=${DBNAME}
+      - DATABASE_HOST=${DBHOST}
 
   api:
     image: irvanhau/ticketing-app
@@ -24,7 +25,7 @@ services:
     environment:
       - DBUSER=${DBUSER}
       - DBPASSWORD=${DBPASS}
-      - DBHOST=db
+      - DBHOST=${DBHOST}
       - DBPORT=${DBPORT}
       - DBNAME=${DBNAME}
       - SERVER=${SERVER}
