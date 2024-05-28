@@ -55,4 +55,3 @@ Clean Architecture
 - change .env with your config
 - ```go mod tidy```
 - ```go run main.go wire_gen.go```
-- 
