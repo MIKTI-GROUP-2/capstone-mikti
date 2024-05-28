@@ -1,0 +1,192 @@
+package data
+
+import (
+	"capstone-mikti/features/users"
+	"capstone-mikti/helper/enkrip"
+	"errors"
+	"time"
+
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+)
+
+type UserData struct {
+	db     *gorm.DB
+	enkrip enkrip.HashInterface
+}
+
+func New(db *gorm.DB, enkrip enkrip.HashInterface) *UserData {
+	return &UserData{
+		db:     db,
+		enkrip: enkrip,
+	}
+}
+
+func (ud *UserData) Register(newData users.User) (*users.User, error) {
+	var dbData = new(User)
+	dbData.Username = newData.Username
+	dbData.Email = newData.Email
+	dbData.PhoneNumber = newData.PhoneNumber
+	dbData.Password = newData.Password
+	dbData.IsAdmin = newData.IsAdmin
+	dbData.Status = newData.Status
+
+	if err := ud.db.Create(dbData).Error; err != nil {
+		logrus.Error("DATA : Register Error : ", err.Error())
+		return nil, err
+	}
+
+	return &newData, nil
+}
+
+func (ud *UserData) Login(username, password string) (*users.User, error) {
+	var dbData = new(User)
+	dbData.Username = username
+
+	var qry = ud.db.Where("username = ? AND status = ?", dbData.Username, true).First(dbData)
+
+	var dataCount int64
+	qry.Count(&dataCount)
+
+	if dataCount == 0 {
+		logrus.Error("DATA : Login Error : Data Not Found")
+		return nil, errors.New("ERROR Data Not Found")
+	}
+
+	if err := qry.Error; err != nil {
+		logrus.Error("DATA : Login Get Error : ", err.Error())
+		return nil, err
+	}
+
+	if err := ud.enkrip.Compare(dbData.Password, password); err != nil {
+		logrus.Error("DATA : Incorrect Password")
+		return nil, errors.New("ERROR Incorrect Password")
+	}
+
+	var result = new(users.User)
+	result.ID = dbData.ID
+	result.Username = dbData.Username
+	result.Email = dbData.Email
+	result.PhoneNumber = dbData.PhoneNumber
+	result.IsAdmin = dbData.IsAdmin
+	result.Status = dbData.Status
+
+	return result, nil
+}
+
+func (ud *UserData) GetByID(id int) (users.User, error) {
+	var listUser users.User
+	var qry = ud.db.Table("users").Select("users.*").
+		Where("users.id = ?", id).
+		Where("users.status = ?", true).
+		Scan(&listUser)
+
+	if err := qry.Error; err != nil {
+		logrus.Error("DATA : Error Get By ID : ", err.Error())
+		return listUser, err
+	}
+
+	return listUser, nil
+}
+
+func (ud *UserData) GetByUsername(username string) (*users.User, error) {
+	var dbData = new(User)
+	dbData.Username = username
+
+	var qry = ud.db.Where("username = ?", dbData.Username).First(dbData)
+
+	if err := qry.Error; err != nil {
+		logrus.Error("DATA : Error Get By Username : ", err.Error())
+		return nil, err
+	}
+
+	var result = new(users.User)
+	result.ID = dbData.ID
+	result.Username = dbData.Username
+	result.Email = dbData.Email
+	result.PhoneNumber = dbData.PhoneNumber
+	result.IsAdmin = dbData.IsAdmin
+	result.Status = dbData.Status
+
+	return result, nil
+}
+
+func (ud *UserData) InsertCode(username, code string) error {
+	var newData = new(UserResetPass)
+	newData.Username = username
+	newData.Code = code
+	newData.ExpiredAt = time.Now().Add(time.Minute * 10)
+
+	_, err := ud.GetByCode(code)
+	if err != nil {
+		ud.DeleteCode(code)
+	}
+
+	if err := ud.db.Table("user_reset_passes").Create(newData).Error; err != nil {
+		logrus.Error("DATA : Error Create User Reset Pass : ", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (ud *UserData) DeleteCode(code string) error {
+	var deleteData = new(UserResetPass)
+
+	if err := ud.db.Table("user_reset_passes").Where("code = ? ", code).Delete(deleteData).Error; err != nil {
+		logrus.Error("DATA : Error Delete User Reset Pass : ", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (ud *UserData) GetByCode(code string) (*users.UserResetPass, error) {
+	var dbData = new(UserResetPass)
+	dbData.Code = code
+
+	if err := ud.db.Table("user_reset_passes").Where("code = ?", dbData.Code).First(dbData).Error; err != nil {
+		logrus.Error("DATA : Error Get User Reset Pass : ", err.Error())
+	}
+
+	var result = new(users.UserResetPass)
+	result.Username = dbData.Username
+	result.Code = dbData.Code
+	result.ExpiredAt = dbData.ExpiredAt
+
+	return result, nil
+}
+
+func (ud *UserData) ResetPassword(code, username, password string) error {
+	if err := ud.db.Table("users").Where("username = ?", username).Update("password", password).Error; err != nil {
+		logrus.Error("DATA : Error Update Password : ", err.Error())
+		return err
+	}
+
+	checkData, _ := ud.GetByCode(code)
+	if checkData.Code != "" {
+		ud.DeleteCode(code)
+	}
+
+	return nil
+}
+
+func (ud *UserData) UpdateProfile(id int, newData users.UpdateProfile) (bool, error) {
+	var qry = ud.db.Table("users").Where("id = ?", id).Updates(User{
+		Username:    newData.Username,
+		Email:       newData.Email,
+		PhoneNumber: newData.PhoneNumber,
+	})
+
+	if err := qry.Error; err != nil {
+		logrus.Error("DATA : Error Update Profile : ", err.Error())
+		return false, err
+	}
+
+	if dataCount := qry.RowsAffected; dataCount < 1 {
+		logrus.Error("DATA : No Row Affected")
+		return false, nil
+	}
+
+	return true, nil
+}
