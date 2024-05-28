@@ -18,6 +18,8 @@ services:
       - POSTGRES_USER=${DBUSER}
       - POSTGRES_DB=${DBNAME}
       - DATABASE_HOST=${DBHOST}
+    networks:
+      - mikti
 
   api:
     image: irvanhau/ticketing-app
