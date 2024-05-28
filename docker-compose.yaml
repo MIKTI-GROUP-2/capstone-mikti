@@ -28,8 +28,8 @@ services:
       - SERVER=${SERVER}
       - SECRET=${SECRET}
       - REFSECRET=${REFSECRET}
-      - EMAIL=${EMAIL}
-      - PASSWORD=${PASSWORD}
+      - EMAIL=${EMAIL_SENDER}
+      - PASSWORD=${EMAIL_PASSWORD_SENDER}
     ports:
       - '8888:80'
     networks:
