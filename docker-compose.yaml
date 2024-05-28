@@ -39,7 +39,7 @@ services:
     volumes:
       - api:/usr/src/app/
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
 
 networks:
