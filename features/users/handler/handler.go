@@ -250,7 +250,7 @@ func (u *UserHandler) Profile() echo.HandlerFunc {
 		response.Email = res.Email
 		response.Username = res.Username
 		response.PhoneNumber = res.PhoneNumber
-
+		response.Role = ext.Role
 		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Profile", response))
 	}
 }
