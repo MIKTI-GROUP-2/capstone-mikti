@@ -4,6 +4,7 @@ import (
 	"capstone-mikti/features/events"
 	"capstone-mikti/helper/jwt"
 	"errors"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -28,6 +29,12 @@ func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) 
 		return nil, errors.New("ERROR Title already registered by another user")
 	}
 
+	layout := "2006-01-02"
+
+	parseStartDate, _ := time.Parse(layout, newData.StartDate)
+	parseEndDate, _ := time.Parse(layout, newData.EndDate)
+	newData.ParseStartDate = parseStartDate
+	newData.ParseEndDate = parseEndDate
 	result, err := e.data.CreateEvent(newData)
 	if err != nil {
 		logrus.Error("Service : Error Create : ", err.Error())

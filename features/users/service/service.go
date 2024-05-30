@@ -170,5 +170,5 @@ func (u *UserService) Profile(id int) (*users.User, error) {
 		return nil, errors.New("ERROR Get Profile")
 	}
 
-	return &res, nil
+	return res, nil
 }

@@ -2,7 +2,6 @@ package data
 
 import (
 	"capstone-mikti/features/events"
-	"capstone-mikti/helper/customtime"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -18,32 +17,17 @@ func New(db *gorm.DB) *EventData {
 	}
 }
 
-func (ed *EventData) GetByTitle(title string) (*events.Event, error) {
-	var dbData = new(Event)
-	dbData.Title = title
+func (ed *EventData) GetByTitle(title string) ([]events.Event, error) {
+	var dbData = []events.Event{}
 
-	var qry = ed.db.Where("event_title = ?", dbData.Title).First(dbData)
+	var qry = ed.db.Where("event_title = ?", title).First(&dbData)
 
 	if err := qry.Error; err != nil {
 		logrus.Error("DATA : Error Get By Title : ", err.Error())
 		return nil, err
 	}
 
-	var result = new(events.Event)
-	result.ID = dbData.ID
-	result.CategoryFK = dbData.CategoryFK
-	result.Title = dbData.Title
-	result.City = dbData.City
-	result.Address = dbData.Address
-	result.StartDate = customtime.CustomTime{Time: dbData.StartDate}
-	result.EndDate = customtime.CustomTime{Time: dbData.EndDate}
-	result.StartingPrice = dbData.StartingPrice
-	result.Description = dbData.Description
-	result.Highlight = dbData.Highlight
-	result.ImportantInformation = dbData.ImportantInformation
-	result.Image = dbData.Image
-
-	return result, nil
+	return dbData, nil
 }
 
 func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
@@ -54,8 +38,8 @@ func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 	dbData.City = newData.City
 	dbData.Address = newData.Address
 	dbData.StartingPrice = newData.StartingPrice
-	dbData.StartDate = newData.StartDate.Time
-	dbData.EndDate = newData.EndDate.Time
+	dbData.StartDate = newData.ParseStartDate
+	dbData.EndDate = newData.ParseEndDate
 	dbData.Description = newData.Description
 	dbData.Highlight = newData.Highlight
 	dbData.ImportantInformation = newData.ImportantInformation

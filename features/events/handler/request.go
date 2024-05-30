@@ -1,9 +1,5 @@
 package handler
 
-import (
-	"capstone-mikti/helper/customtime"
-)
-
 type EventInput struct {
 	CategoryFK           int    `json:"category_id" form:"category_id" validate:"required"`
 	Title                string `json:"event_title" form:"event_title" validate:"required"`
@@ -16,12 +12,4 @@ type EventInput struct {
 	ImportantInformation string `json:"important_information" form:"important_information"`
 	Address              string `json:"address"  form:"address" validate:"required"`
 	Image                string `json:"image_url" form:"image_url" validate:"required"`
-}
-
-func (e *EventInput) GetStartCustomTime() customtime.CustomTime {
-	return customtime.CustomTimeFromString(e.StartDate)
-}
-
-func (e *EventInput) GetEndCustomTime() customtime.CustomTime {
-	return customtime.CustomTimeFromString(e.EndDate)
 }

@@ -3,7 +3,6 @@ package handler
 import (
 	"capstone-mikti/features/events"
 	"capstone-mikti/helper"
-	"capstone-mikti/helper/customtime"
 	"capstone-mikti/helper/jwt"
 	"net/http"
 	"strings"
@@ -48,8 +47,8 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 		serviceInput.City = input.City
 		serviceInput.Address = input.Address
 		serviceInput.StartingPrice = input.StartingPrice
-		serviceInput.StartDate = customtime.CustomTimeFromString(input.StartDate)
-		serviceInput.EndDate = customtime.CustomTimeFromString(input.EndDate)
+		serviceInput.StartDate = input.StartDate
+		serviceInput.EndDate = input.EndDate
 		serviceInput.Description = input.Description
 		serviceInput.Highlight = input.Highlight
 		serviceInput.ImportantInformation = input.ImportantInformation
@@ -59,17 +58,17 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 
 		if err != nil {
 			if strings.Contains(err.Error(), "Title already registered by another event") {
-				return c.JSON(http.StatusBadRequest, helper.FormatResponse("Titke Already Registered", nil))
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse("Title Already Registered", nil))
 			}
 			c.Logger().Info("Handler : Create Failed : ", err.Error())
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Create Process Failed", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Title Already Registered", nil))
 		}
 
 		var response = new(EventResponse)
 		response.CategoryFK = result.CategoryFK
 		response.Title = result.Title
-		response.StartDate = customtime.CustomTime{Time: result.StartDate.Time}
-		response.EndDate = customtime.CustomTime{Time: result.EndDate.Time}
+		response.StartDate = result.StartDate
+		response.EndDate = result.EndDate
 		response.Description = result.Description
 		response.StartingPrice = result.StartingPrice
 
