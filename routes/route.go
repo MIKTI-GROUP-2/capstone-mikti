@@ -3,12 +3,13 @@ package routes
 import (
 	"capstone-mikti/configs"
 	"capstone-mikti/features/users"
+	"capstone-mikti/features/wishlists"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
-func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface) *echo.Echo {
+func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, wh wishlists.WishlistHandlerInterface) *echo.Echo {
 	e := echo.New()
 
 	//Akses khusus harus login dlu
@@ -30,6 +31,10 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface) *echo
 	// Route Group event
 	groupEvent := group.Group("/event")
 	groupEvent.GET("", uh.Profile(), JwtAuth)
+
+	// Route Wishlist
+	groupWishlist := group.Group("/wishlist")
+	groupWishlist.GET("", wh.GetAll())
 
 	return e
 }

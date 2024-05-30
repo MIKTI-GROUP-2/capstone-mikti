@@ -12,6 +12,10 @@ import (
 	"capstone-mikti/features/users/data"
 	"capstone-mikti/features/users/handler"
 	"capstone-mikti/features/users/service"
+	"capstone-mikti/features/wishlists"
+	data2 "capstone-mikti/features/wishlists/data"
+	handler2 "capstone-mikti/features/wishlists/handler"
+	service2 "capstone-mikti/features/wishlists/service"
 	"capstone-mikti/helper/email"
 	"capstone-mikti/helper/enkrip"
 	"capstone-mikti/helper/jwt"
@@ -32,7 +36,10 @@ func InitializedServer() *server.Server {
 	emailInterface := email.New(programmingConfig)
 	userService := service.New(userData, jwtInterface, hashInterface, emailInterface)
 	userHandler := handler.NewHandler(userService, jwtInterface)
-	echo := routes.NewRoute(programmingConfig, userHandler)
+	wishlistData := data2.New(db)
+	wishlistService := service2.New(wishlistData)
+	wishlistHandler := handler2.NewHandler(wishlistService)
+	echo := routes.NewRoute(programmingConfig, userHandler, wishlistHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
 	return serverServer
 }
@@ -40,3 +47,5 @@ func InitializedServer() *server.Server {
 // injector.go:
 
 var userSet = wire.NewSet(data.New, wire.Bind(new(users.UserDataInterface), new(*data.UserData)), service.New, wire.Bind(new(users.UserServiceInterface), new(*service.UserService)), handler.NewHandler, wire.Bind(new(users.UserHandlerInterface), new(*handler.UserHandler)))
+
+var wishlistSet = wire.NewSet(data2.New, wire.Bind(new(wishlists.WishlistDataInterface), new(*data2.WishlistData)), service2.New, wire.Bind(new(wishlists.WishlistServiceInterface), new(*service2.WishlistService)), handler2.NewHandler, wire.Bind(new(wishlists.WishlistHandlerInterface), new(*handler2.WishlistHandler)))
