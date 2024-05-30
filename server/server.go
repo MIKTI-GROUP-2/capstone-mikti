@@ -22,6 +22,8 @@ func (s *Server) RunServer() {
 			Format: "method=${method}, uri=${uri}, status=${status}, time=${time_rfc3339}\n",
 		}))
 
+	s.e.Use(middleware.Recover())
+
 	s.e.Logger.Debug()
 	s.e.Logger.Fatal(s.e.Start(fmt.Sprintf(":%d", s.c.Server)).Error())
 }
