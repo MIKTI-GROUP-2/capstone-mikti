@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"capstone-mikti/features/events"
+	events "capstone-mikti/features/events"
 	"capstone-mikti/helper"
 	"capstone-mikti/helper/jwt"
 	"net/http"
@@ -76,27 +76,15 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 	}
 }
 
-// func (eh *EventHandler) GetEvent() echo.HandlerFunc {
-// 	return func(c echo.Context) error {
-// 		result, err := eh.service.GetEvent()
-// 		if err != nil {
-// 			c.Logger().Error("Handler : Get Event Error : ", err.Error())
-// 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get Event Error", nil))
-// 		}
+func (e *EventHandler) GetAll() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		getAll, err := e.service.GetAll()
 
-// 		var responses []EventResponse
-// 		for _, event := range result {
-// 			response := EventResponse{
-// 				CategoryFK:    event.CategoryFK,
-// 				Title:         event.Title,
-// 				StartDate:     event.StartDate,
-// 				EndDate:       event.EndDate,
-// 				Description:   event.Description,
-// 				StartingPrice: event.StartingPrice,
-// 			}
-// 			responses = append(responses, response)
-// 		}
+		if err != nil {
+			c.Logger().Info("Handler : Get All Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get All proses Failed", nil))
+		}
 
-// 		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Events", responses))
-// 	}
-// }
+		return c.JSON(http.StatusOK, helper.FormatResponse("Get All Proses Succes", getAll))
+	}
+}

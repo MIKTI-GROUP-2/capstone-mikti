@@ -6,6 +6,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type AllEvent struct {
+	ID            uint      `json:"id"`
+	CategoryFK    int       `json:"category_id"`
+	Title         string    `json:"event_title"`
+	StartDate     time.Time `json:"start_date"`
+	EndDate       time.Time `json:"end_date"`
+	StartingPrice int       `json:"starting_price"`
+}
+
 type Event struct {
 	ID                   uint      `json:"id"`
 	CategoryFK           int       `json:"category_id"`
@@ -25,16 +34,16 @@ type Event struct {
 
 type EventHandlerInterface interface {
 	CreateEvent() echo.HandlerFunc
-	// GetEvent() echo.HandlerFunc
+	GetAll() echo.HandlerFunc
 }
 
 type EventServiceInterface interface {
 	CreateEvent(newData Event) (*Event, error)
-	// GetEvent() ([]Event, error)
+	GetAll() ([]AllEvent, error)
 }
 
 type EventDataInterface interface {
 	CreateEvent(newData Event) (*Event, error)
 	GetByTitle(username string) ([]Event, error)
-	// GetEvent() ([]Event, error)
+	GetAll() ([]AllEvent, error)
 }

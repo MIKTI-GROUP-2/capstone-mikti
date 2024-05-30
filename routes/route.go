@@ -2,7 +2,8 @@ package routes
 
 import (
 	"capstone-mikti/configs"
-	"capstone-mikti/features/events"
+
+	events "capstone-mikti/features/events"
 	"capstone-mikti/features/users"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -31,6 +32,6 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	// Route Group event
 	groupEvent := group.Group("/event")
 	groupEvent.POST("/create", eh.CreateEvent(), JwtAuth)
-
+	groupEvent.GET("", eh.GetAll())
 	return e
 }

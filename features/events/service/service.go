@@ -1,7 +1,7 @@
 package service
 
 import (
-	"capstone-mikti/features/events"
+	events "capstone-mikti/features/events"
 	"capstone-mikti/helper/jwt"
 	"errors"
 	"time"
@@ -33,6 +33,7 @@ func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) 
 
 	parseStartDate, _ := time.Parse(layout, newData.StartDate)
 	parseEndDate, _ := time.Parse(layout, newData.EndDate)
+
 	newData.ParseStartDate = parseStartDate
 	newData.ParseEndDate = parseEndDate
 	result, err := e.data.CreateEvent(newData)
@@ -44,15 +45,13 @@ func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) 
 	return result, nil
 }
 
-// func (e *EventService) GetEvent() (*[]events.Event, error) {
+func (e *EventService) GetAll() ([]events.AllEvent, error) {
+	result, err := e.data.GetAll()
 
-// 	res, err := e.data.GetEvent()
+	if err != nil {
+		logrus.Error("Service : Get All Eerror : ", err.Error())
+		return nil, errors.New("Error Get All")
+	}
 
-// 	if err != nil {
-// 		logrus.Error("Service : Get Event Error : ", err.Error())
-// 		return nil, errors.New("ERROR Get Event")
-// 	}
-
-// 	return &res, nil
-
-// }
+	return result, nil
+}

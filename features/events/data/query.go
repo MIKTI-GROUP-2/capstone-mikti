@@ -1,7 +1,7 @@
 package data
 
 import (
-	"capstone-mikti/features/events"
+	events "capstone-mikti/features/events"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -53,11 +53,15 @@ func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 	return &newData, nil
 }
 
-// func (ed *EventData) GetEvent() ([]events.Event, error) {
-// 	var events []events.Event
-// 	if err := ed.db.Find(&events).Error; err != nil {
-// 		logrus.Error("DATA : Error Get All Events : ", err.Error())
-// 		return nil, err
-// 	}
-// 	return events, nil
-// }
+func (e *EventData) GetAll() ([]events.AllEvent, error) {
+	var listEvent = []events.AllEvent{}
+
+	err := e.db.Table("events").Find(&listEvent).Error
+
+	if err != nil {
+		logrus.Error("Data : Get All Error : ", err.Error())
+		return listEvent, err
+	}
+
+	return listEvent, nil
+}
