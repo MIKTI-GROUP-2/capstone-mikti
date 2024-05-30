@@ -22,6 +22,7 @@ type ProgrammingConfig struct {
 	Password   string
 	Secret     string
 	RefSecret  string
+	Cloud_URL  string
 }
 
 func InitConfig() *ProgrammingConfig {
@@ -136,6 +137,13 @@ func loadConfig() (*ProgrammingConfig, error) {
 	} else {
 		permit = false
 		errorLoad = errors.New("REFSECRET UNDEFINED")
+	}
+
+	if val, found := os.LookupEnv("CLOUDURL"); found {
+		res.Cloud_URL = val
+	} else {
+		permit = false
+		errorLoad = errors.New("CLOUDURL UNDEFINED")
 	}
 
 	if !permit {
