@@ -16,6 +16,7 @@ type JWTInterface interface {
 	RefreshJWT(accessToken string, refreshToken *jwt.Token) (map[string]any, error)
 	ExtractToken(c echo.Context) (ExtractToken, error)
 	GetCurrentToken(c echo.Context) *jwt.Token
+	ValidateRole(c echo.Context) bool
 }
 
 type JWT struct {
@@ -178,4 +179,10 @@ func (j *JWT) GetCurrentToken(c echo.Context) *jwt.Token {
 	currentToken := c.Get("user").(*jwt.Token)
 
 	return currentToken
+}
+
+func (j *JWT) ValidateRole(c echo.Context) bool {
+	ext, _ := j.ExtractToken(c)
+
+	return ext.Role == "Admin"
 }

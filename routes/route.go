@@ -3,22 +3,13 @@ package routes
 import (
 	"capstone-mikti/configs"
 	"capstone-mikti/features/users"
-	"capstone-mikti/helper/middlewares"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface) *echo.Echo {
 	e := echo.New()
-
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	config := configs.InitConfig()
-
-	//Akses khusus sesuai role
-	RoleMiddleware := middlewares.NewMiddleware(config)
 
 	//Akses khusus harus login dlu
 	JwtAuth := echojwt.JWT([]byte(c.Secret))
@@ -38,8 +29,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface) *echo
 
 	// Route Group event
 	groupEvent := group.Group("/event")
-	groupEvent.Use(RoleMiddleware.RoleMiddleware("Admin"))
-	groupEvent.GET("", uh.Profile())
+	groupEvent.GET("", uh.Profile(), JwtAuth)
 
 	return e
 }
