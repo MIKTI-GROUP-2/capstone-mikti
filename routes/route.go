@@ -35,5 +35,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupEvent.GET("", eh.GetAll())
 	groupEvent.GET("/:id", eh.GetDetail())
 	groupEvent.PUT("/:id", eh.UpdateEvent(), JwtAuth)
+	groupEvent.DELETE("/:id", eh.DeleteEvent(), JwtAuth)
+
 	return e
 }

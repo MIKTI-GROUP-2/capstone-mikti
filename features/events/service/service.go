@@ -84,3 +84,15 @@ func (e *EventService) UpdateEvent(id int, newData events.UpdateEvent) (*events.
 
 	return result, nil
 }
+
+func (e *EventService) DeleteEvent(id int) (bool, error) {
+	result, err := e.data.DeleteEvent(id)
+
+	if err != nil {
+		logrus.Error("Service : Error Create : ", err.Error())
+		return false, errors.New("ERROR Create")
+	}
+
+	return result, nil
+
+}

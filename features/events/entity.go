@@ -55,6 +55,7 @@ type EventHandlerInterface interface {
 	GetAll() echo.HandlerFunc
 	GetDetail() echo.HandlerFunc
 	UpdateEvent() echo.HandlerFunc
+	DeleteEvent() echo.HandlerFunc
 }
 
 type EventServiceInterface interface {
@@ -62,6 +63,7 @@ type EventServiceInterface interface {
 	GetAll() ([]AllEvent, error)
 	GetDetail(id int) ([]Event, error)
 	UpdateEvent(id int, newData UpdateEvent) (*UpdateEvent, error)
+	DeleteEvent(id int) (bool, error)
 }
 
 type EventDataInterface interface {
@@ -70,4 +72,5 @@ type EventDataInterface interface {
 	GetAll() ([]AllEvent, error)
 	GetDetail(id int) ([]Event, error)
 	UpdateEvent(id int, newData UpdateEvent) (*UpdateEvent, error)
+	DeleteEvent(id int) (bool, error)
 }

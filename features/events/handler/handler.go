@@ -153,7 +153,31 @@ func (e *EventHandler) UpdateEvent() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Update Event Error", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Success Event Profile", result))
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Update Event", result))
 
+	}
+}
+
+func (e *EventHandler) DeleteEvent() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if isValid := e.jwt.ValidateRole(c); !isValid {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Only Admin can access this endpoint", nil))
+		}
+
+		id := c.Param("id")
+		eventID, err := strconv.Atoi(id)
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event ID", nil))
+		}
+
+		result, err := e.service.DeleteEvent(eventID)
+
+		if err != nil {
+			c.Logger().Info("Handler : Delete Event Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete Event Error", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Delete Event", result))
 	}
 }

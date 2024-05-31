@@ -2,6 +2,7 @@ package data
 
 import (
 	events "capstone-mikti/features/events"
+	"errors"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -56,7 +57,7 @@ func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 func (e *EventData) GetAll() ([]events.AllEvent, error) {
 	var listEvent = []events.AllEvent{}
 
-	err := e.db.Table("events").Find(&listEvent).Error
+	err := e.db.Table("events").Where("deleted_at is null").Find(&listEvent).Error
 
 	if err != nil {
 		logrus.Error("Data : Get All Error : ", err.Error())
@@ -69,7 +70,7 @@ func (e *EventData) GetAll() ([]events.AllEvent, error) {
 func (e *EventData) GetDetail(id int) ([]events.Event, error) {
 	var event = []events.Event{}
 
-	var query = e.db.Where("id = ? ", id).First(&event)
+	var query = e.db.Where("id = ? ", id).Where("deleted_at is null").First(&event)
 
 	if err := query.Error; err != nil {
 		logrus.Error("DATA : Error Get By ID : ", err.Error())
@@ -97,7 +98,7 @@ func (e *EventData) UpdateEvent(id int, newData events.UpdateEvent) (*events.Upd
 	})
 
 	if err := qry.Error; err != nil {
-		logrus.Error("DATA : Error Update Profile : ", err.Error())
+		logrus.Error("DATA : Error Update Event : ", err.Error())
 		return nil, err
 	}
 
@@ -107,4 +108,23 @@ func (e *EventData) UpdateEvent(id int, newData events.UpdateEvent) (*events.Upd
 	}
 
 	return &newData, nil
+}
+
+func (e *EventData) DeleteEvent(id int) (bool, error) {
+
+	var event Event
+	var query = e.db.Where("id = ? ", id).Delete(&event)
+
+	if err := query.Error; err != nil {
+		logrus.Error("Data : Error Delete Event : ", err.Error())
+		return false, nil
+	}
+
+	if query.RowsAffected == 0 {
+		logrus.Warn("Data : No Event Deleted")
+		return false, errors.New("no event deleted")
+	}
+
+	return true, nil
+
 }
