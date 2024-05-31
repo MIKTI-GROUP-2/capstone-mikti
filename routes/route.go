@@ -34,6 +34,6 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupEvent.POST("/create", eh.CreateEvent(), JwtAuth)
 	groupEvent.GET("", eh.GetAll())
 	groupEvent.GET("/:id", eh.GetDetail())
-
+	groupEvent.PUT("/:id", eh.UpdateEvent(), JwtAuth)
 	return e
 }

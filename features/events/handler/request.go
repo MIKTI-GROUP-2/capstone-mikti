@@ -13,3 +13,18 @@ type EventInput struct {
 	Address              string `json:"address"  form:"address" validate:"required"`
 	Image                string `json:"image_url" form:"image_url" validate:"required"`
 }
+
+type UpdateEvent struct {
+	CategoryFK           int    `json:"category_id" form:"category_id"`
+	Title                string `json:"event_title" form:"event_title"`
+	StartDate            string `json:"start_date" form:"start_date"`
+	EndDate              string `json:"end_date" form:"start_date"`
+	City                 string `json:"city"  form:"city"`
+	StartingPrice        int    `json:"starting_price"  form:"starting_price"`
+	Description          string `json:"description"  form:"description"`
+	Highlight            string `json:"highlight" form:"highlight"`
+	ImportantInformation string `json:"important_information" form:"important_information"`
+	Address              string `json:"address"  form:"address"`
+	Image                string `json:"image_url" form:"image_url"`
+	PublicID             string `json:"public_id" form:"public_id"`
+}

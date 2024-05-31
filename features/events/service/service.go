@@ -66,3 +66,21 @@ func (e *EventService) GetDetail(id int) ([]events.Event, error) {
 
 	return result, nil
 }
+
+func (e *EventService) UpdateEvent(id int, newData events.UpdateEvent) (*events.UpdateEvent, error) {
+	layout := "2006-01-02"
+
+	parseStartDate, _ := time.Parse(layout, newData.StartDate)
+	parseEndDate, _ := time.Parse(layout, newData.EndDate)
+
+	newData.ParseStartDate = parseStartDate
+	newData.ParseEndDate = parseEndDate
+
+	result, err := e.data.UpdateEvent(id, newData)
+	if err != nil {
+		logrus.Error("Service : Error Create : ", err.Error())
+		return nil, errors.New("ERROR Create")
+	}
+
+	return result, nil
+}

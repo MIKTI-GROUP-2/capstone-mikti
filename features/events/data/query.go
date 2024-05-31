@@ -79,3 +79,32 @@ func (e *EventData) GetDetail(id int) ([]events.Event, error) {
 	return event, nil
 
 }
+
+func (e *EventData) UpdateEvent(id int, newData events.UpdateEvent) (*events.UpdateEvent, error) {
+	var qry = e.db.Table("events").Where("id = ?", id).Updates(Event{
+		CategoryFK:           newData.CategoryFK,
+		Title:                newData.Title,
+		City:                 newData.City,
+		Address:              newData.Address,
+		StartingPrice:        newData.StartingPrice,
+		StartDate:            newData.ParseStartDate,
+		EndDate:              newData.ParseEndDate,
+		Description:          newData.Description,
+		Highlight:            newData.Highlight,
+		ImportantInformation: newData.ImportantInformation,
+		Image:                newData.Image,
+		PublicID:             newData.PublicID,
+	})
+
+	if err := qry.Error; err != nil {
+		logrus.Error("DATA : Error Update Profile : ", err.Error())
+		return nil, err
+	}
+
+	if dataCount := qry.RowsAffected; dataCount < 1 {
+		logrus.Error("DATA : No Row Affected")
+		return nil, nil
+	}
+
+	return &newData, nil
+}

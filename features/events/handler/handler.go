@@ -112,3 +112,48 @@ func (e *EventHandler) GetDetail() echo.HandlerFunc {
 
 	}
 }
+
+func (e *EventHandler) UpdateEvent() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		if isValid := e.jwt.ValidateRole(c); !isValid {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Only Admin can access this endpoint", nil))
+		}
+
+		id := c.Param("id")
+		eventID, err := strconv.Atoi(id)
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event ID", nil))
+		}
+
+		var input = new(UpdateEvent)
+		if err := c.Bind(&input); err != nil {
+			c.Logger().Info("Handler : Bind Input Error : ", err.Error())
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event Input", nil))
+		}
+
+		var serviceUpdate = new(events.UpdateEvent)
+		serviceUpdate.CategoryFK = input.CategoryFK
+		serviceUpdate.Title = input.Title
+		serviceUpdate.City = input.City
+		serviceUpdate.Address = input.Address
+		serviceUpdate.StartingPrice = input.StartingPrice
+		serviceUpdate.StartDate = input.StartDate
+		serviceUpdate.EndDate = input.EndDate
+		serviceUpdate.Description = input.Description
+		serviceUpdate.Highlight = input.Highlight
+		serviceUpdate.ImportantInformation = input.ImportantInformation
+		serviceUpdate.Image = input.Image
+		serviceUpdate.PublicID = input.PublicID
+
+		result, err := e.service.UpdateEvent(int(eventID), *serviceUpdate)
+		if err != nil {
+			c.Logger().Info("Handler : Update Event Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Update Event Error", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Event Profile", result))
+
+	}
+}
