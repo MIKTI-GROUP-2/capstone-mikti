@@ -23,6 +23,7 @@ type WishlistHandlerInterface interface {
 	Create() echo.HandlerFunc
 	GetAll() echo.HandlerFunc
 	GetByUserID() echo.HandlerFunc
+	Delete() echo.HandlerFunc
 }
 
 // Service
@@ -30,6 +31,7 @@ type WishlistServiceInterface interface {
 	Create(new_data Wishlist) (*Wishlist, error)
 	GetAll() ([]WishlistInfo, error)
 	GetByUserID(user_id int) ([]WishlistInfo, error)
+	Delete(id uint) error
 }
 
 // Repository
@@ -37,4 +39,5 @@ type WishlistDataInterface interface {
 	Create(new_data Wishlist) (*Wishlist, error)
 	GetAll() ([]WishlistInfo, error)
 	GetByUserID(user_id int) ([]WishlistInfo, error)
+	Delete(id uint) error
 }

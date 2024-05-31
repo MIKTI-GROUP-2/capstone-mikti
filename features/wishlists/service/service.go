@@ -21,14 +21,14 @@ func New(d wishlists.WishlistDataInterface) *WishlistService {
 
 // Create
 func (ws *WishlistService) Create(new_data wishlists.Wishlist) (*wishlists.Wishlist, error) {
-	result, err := ws.data.Create(new_data)
+	create, err := ws.data.Create(new_data)
 
 	if err != nil {
 		logrus.Error("Service : Create Error : ", err.Error())
 		return nil, errors.New("ERROR Create")
 	}
 
-	return result, nil
+	return create, nil
 }
 
 // GetAll
@@ -53,4 +53,16 @@ func (ws *WishlistService) GetByUserID(user_id int) ([]wishlists.WishlistInfo, e
 	}
 
 	return result, nil
+}
+
+// Delete
+func (ws *WishlistService) Delete(id uint) error {
+	err := ws.data.Delete(id)
+
+	if err != nil {
+		logrus.Error("Service : Delete Error : ", err.Error())
+		return errors.New("ERROR Delete")
+	}
+
+	return nil
 }

@@ -37,6 +37,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, wh wi
 	groupWishlist.GET("", wh.GetAll())
 	groupWishlist.GET("/:user_id", wh.GetByUserID())
 	groupWishlist.POST("/create", wh.Create())
+	groupWishlist.DELETE("/:id", wh.Delete())
 
 	return e
 }

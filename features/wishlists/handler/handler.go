@@ -82,3 +82,24 @@ func (wh *WishlistHandler) GetByUserID() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, helper.FormatResponse("GetByUserID process success", result))
 	}
 }
+
+// Delete
+func (wh *WishlistHandler) Delete() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			c.Logger().Error("Handler : Delete Atoi Error : ", err)
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid ID", nil))
+		}
+
+		err = wh.service.Delete(uint(id))
+
+		if err != nil {
+			c.Logger().Error("Handler : Delete Error : ", err)
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete process failed", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Delete process success", nil))
+	}
+}

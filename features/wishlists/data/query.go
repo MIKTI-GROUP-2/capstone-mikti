@@ -70,3 +70,18 @@ func (wd *WishlistData) GetByUserID(user_id int) ([]wishlists.WishlistInfo, erro
 
 	return result, nil
 }
+
+// Delete
+func (wd *WishlistData) Delete(id uint) error {
+	delete := wd.db.Delete(&wishlists.Wishlist{}, id)
+	if delete.Error != nil {
+		logrus.Error("DATA : Delete Error : ", delete.Error.Error())
+		return delete.Error
+	}
+
+	if delete.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
+}
