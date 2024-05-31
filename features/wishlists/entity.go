@@ -2,7 +2,7 @@ package wishlists
 
 import "github.com/labstack/echo/v4"
 
-// Entity for Create, Delete
+// Entity for Create
 type Wishlist struct {
 	ID      uint `json:"id"`
 	UserID  int  `json:"user_id"`
