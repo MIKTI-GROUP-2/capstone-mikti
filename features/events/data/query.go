@@ -65,3 +65,17 @@ func (e *EventData) GetAll() ([]events.AllEvent, error) {
 
 	return listEvent, nil
 }
+
+func (e *EventData) GetDetail(id int) ([]events.Event, error) {
+	var event = []events.Event{}
+
+	var query = e.db.Where("id = ? ", id).First(&event)
+
+	if err := query.Error; err != nil {
+		logrus.Error("DATA : Error Get By ID : ", err.Error())
+		return nil, err
+	}
+
+	return event, nil
+
+}

@@ -55,3 +55,14 @@ func (e *EventService) GetAll() ([]events.AllEvent, error) {
 
 	return result, nil
 }
+
+func (e *EventService) GetDetail(id int) ([]events.Event, error) {
+	result, err := e.data.GetDetail(id)
+
+	if err != nil {
+		logrus.Error("Service : Get All Eerror : ", err.Error())
+		return nil, errors.New("Error Get All")
+	}
+
+	return result, nil
+}

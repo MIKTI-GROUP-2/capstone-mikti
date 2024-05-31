@@ -5,6 +5,7 @@ import (
 	"capstone-mikti/helper"
 	"capstone-mikti/helper/jwt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -86,5 +87,28 @@ func (e *EventHandler) GetAll() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Get All Proses Succes", getAll))
+	}
+}
+
+func (e *EventHandler) GetDetail() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		id := c.Param("id")
+
+		eventID, err := strconv.Atoi(id)
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event ID", nil))
+		}
+
+		get, err := e.service.GetDetail(eventID)
+
+		if err != nil {
+			c.Logger().Info("Handler : Get Event Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get Event proses Failed", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Get Event Proses Succes", get))
+
 	}
 }

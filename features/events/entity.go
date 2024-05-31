@@ -35,15 +35,18 @@ type Event struct {
 type EventHandlerInterface interface {
 	CreateEvent() echo.HandlerFunc
 	GetAll() echo.HandlerFunc
+	GetDetail() echo.HandlerFunc
 }
 
 type EventServiceInterface interface {
 	CreateEvent(newData Event) (*Event, error)
 	GetAll() ([]AllEvent, error)
+	GetDetail(id int) ([]Event, error)
 }
 
 type EventDataInterface interface {
 	CreateEvent(newData Event) (*Event, error)
 	GetByTitle(username string) ([]Event, error)
 	GetAll() ([]AllEvent, error)
+	GetDetail(id int) ([]Event, error)
 }
