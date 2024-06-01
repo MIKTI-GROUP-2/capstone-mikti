@@ -43,21 +43,21 @@ func (ws *WishlistService) GetAll() ([]wishlists.WishlistInfo, error) {
 	return result, nil
 }
 
-// GetByUserID
-func (ws *WishlistService) GetByUserID(user_id int) ([]wishlists.WishlistInfo, error) {
-	result, err := ws.data.GetByUserID(user_id)
+// GetByID
+func (ws *WishlistService) GetByID(id int) ([]wishlists.WishlistInfo, error) {
+	result, err := ws.data.GetByID(id)
 
 	if err != nil {
-		logrus.Error("Service : GetByUserID Error : ", err.Error())
-		return nil, errors.New("ERROR GetByUserID")
+		logrus.Error("Service : GetByID Error : ", err.Error())
+		return nil, errors.New("ERROR GetByID")
 	}
 
 	return result, nil
 }
 
 // Delete
-func (ws *WishlistService) Delete(id uint) error {
-	err := ws.data.Delete(id)
+func (ws *WishlistService) Delete(event_id int) error {
+	err := ws.data.Delete(event_id)
 
 	if err != nil {
 		logrus.Error("Service : Delete Error : ", err.Error())

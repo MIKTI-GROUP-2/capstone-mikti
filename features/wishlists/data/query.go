@@ -39,7 +39,7 @@ func (wd *WishlistData) GetAll() ([]wishlists.WishlistInfo, error) {
 	var result = []wishlists.WishlistInfo{}
 
 	err := wd.db.Table("wishlists").
-		Select("wishlists.id, wishlists.user_id, users.username, wishlists.event_id, events.event_title").
+		Select("wishlists.id, wishlists.user_id, wishlists.event_id, events.event_title").
 		Joins("JOIN users ON users.id = wishlists.user_id").
 		Joins("JOIN events ON events.id = wishlists.event_id").
 		Scan(&result).Error
@@ -52,28 +52,31 @@ func (wd *WishlistData) GetAll() ([]wishlists.WishlistInfo, error) {
 	return result, nil
 }
 
-// GetByUserID
-func (wd *WishlistData) GetByUserID(user_id int) ([]wishlists.WishlistInfo, error) {
-	var result = []wishlists.WishlistInfo{}
+// GetByID
+func (wd *WishlistData) GetByID(id int) ([]wishlists.WishlistInfo, error) {
+	var result []wishlists.WishlistInfo
 
 	err := wd.db.Table("wishlists").
-		Select("wishlists.id, wishlists.user_id, users.username, wishlists.event_id, events.event_title").
+		Select("wishlists.id, wishlists.user_id, wishlists.event_id, events.event_title").
 		Joins("JOIN users ON users.id = wishlists.user_id").
 		Joins("JOIN events ON events.id = wishlists.event_id").
-		Where("wishlists.user_id = ?", user_id).
+		Where("wishlists.id = ?", id).
 		Scan(&result).Error
 
 	if err != nil {
-		logrus.Error("DATA : GetByUserID Error : ", err.Error())
-		return result, err
+		logrus.Error("DATA : GetByID Error : ", err.Error())
+		return nil, err
 	}
 
 	return result, nil
 }
 
 // Delete
-func (wd *WishlistData) Delete(id uint) error {
-	delete := wd.db.Delete(&wishlists.Wishlist{}, id)
+func (wd *WishlistData) Delete(event_id int) error {
+	wishlist := &wishlists.Wishlist{}
+
+	delete := wd.db.Where("event_id = ?", event_id).Delete(wishlist)
+
 	if delete.Error != nil {
 		logrus.Error("DATA : Delete Error : ", delete.Error.Error())
 		return delete.Error

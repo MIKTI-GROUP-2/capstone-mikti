@@ -9,11 +9,10 @@ type Wishlist struct {
 	EventID int  `json:"event_id"`
 }
 
-// Entity for GetAll, GetByUserID
+// Entity for GetAll, GetByID
 type WishlistInfo struct {
 	ID         uint   `json:"id"`
 	UserID     int    `json:"user_id"`
-	UserName   string `json:"username"`
 	EventID    int    `json:"event_id"`
 	EventTitle string `json:"event_title"`
 }
@@ -22,7 +21,7 @@ type WishlistInfo struct {
 type WishlistHandlerInterface interface {
 	Create() echo.HandlerFunc
 	GetAll() echo.HandlerFunc
-	GetByUserID() echo.HandlerFunc
+	GetByID() echo.HandlerFunc
 	Delete() echo.HandlerFunc
 }
 
@@ -30,14 +29,14 @@ type WishlistHandlerInterface interface {
 type WishlistServiceInterface interface {
 	Create(new_data Wishlist) (*Wishlist, error)
 	GetAll() ([]WishlistInfo, error)
-	GetByUserID(user_id int) ([]WishlistInfo, error)
-	Delete(id uint) error
+	GetByID(id int) ([]WishlistInfo, error)
+	Delete(event_id int) error
 }
 
 // Repository
 type WishlistDataInterface interface {
 	Create(new_data Wishlist) (*Wishlist, error)
 	GetAll() ([]WishlistInfo, error)
-	GetByUserID(user_id int) ([]WishlistInfo, error)
-	Delete(id uint) error
+	GetByID(id int) ([]WishlistInfo, error)
+	Delete(event_id int) error
 }

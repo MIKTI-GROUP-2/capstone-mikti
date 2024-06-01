@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 // Controller
@@ -67,36 +68,44 @@ func (wh *WishlistHandler) GetAll() echo.HandlerFunc {
 	}
 }
 
-// GetByUserID
-func (wh *WishlistHandler) GetByUserID() echo.HandlerFunc {
+// GetByID
+func (wh *WishlistHandler) GetByID() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user_id, _ := strconv.Atoi(c.Param("user_id"))
-
-		result, err := wh.service.GetByUserID(user_id)
+		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			c.Logger().Info("Handler : GetByUserID Error : ", err.Error())
-			return c.JSON(http.StatusNotFound, helper.FormatResponse("GetByUserID process failed", nil))
+			c.Logger().Error("Handler : GetByID Invalid id : ", err)
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid id", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("GetByUserID process success", result))
+		result, err := wh.service.GetByID(id)
+
+		if err != nil {
+			c.Logger().Error("Handler : GetByID Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("GetByID process failed", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("GetByID process success", result))
 	}
 }
 
 // Delete
 func (wh *WishlistHandler) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, err := strconv.Atoi(c.Param("id"))
+		event_id, err := strconv.Atoi(c.Param("event_id"))
 
 		if err != nil {
-			c.Logger().Error("Handler : Delete Atoi Error : ", err)
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid ID", nil))
+			c.Logger().Error("Handler : Delete Invalid id : ", err)
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid event_id", nil))
 		}
 
-		err = wh.service.Delete(uint(id))
+		err = wh.service.Delete(event_id)
 
 		if err != nil {
 			c.Logger().Error("Handler : Delete Error : ", err)
+			if err == gorm.ErrRecordNotFound {
+				return c.JSON(http.StatusNotFound, helper.FormatResponse("Wishlist not found", nil))
+			}
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete process failed", nil))
 		}
 
