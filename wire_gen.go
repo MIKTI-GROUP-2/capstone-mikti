@@ -38,7 +38,7 @@ func InitializedServer() *server.Server {
 	userHandler := handler.NewHandler(userService, jwtInterface)
 	wishlistData := data2.New(db)
 	wishlistService := service2.New(wishlistData)
-	wishlistHandler := handler2.NewHandler(wishlistService)
+	wishlistHandler := handler2.NewHandler(wishlistService, jwtInterface)
 	echo := routes.NewRoute(programmingConfig, userHandler, wishlistHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
 	return serverServer

@@ -27,16 +27,16 @@ type WishlistHandlerInterface interface {
 
 // Service
 type WishlistServiceInterface interface {
-	Create(new_data Wishlist) (*Wishlist, error)
-	GetAll() ([]WishlistInfo, error)
-	GetByID(id int) ([]WishlistInfo, error)
-	Delete(event_id int) error
+	Create(user_id int, new_data Wishlist) (*Wishlist, error)
+	GetAll(user_id int) ([]WishlistInfo, error)
+	GetByID(user_id, id int) ([]WishlistInfo, error)
+	Delete(user_id int, event_id int) error
 }
 
 // Repository
 type WishlistDataInterface interface {
-	Create(new_data Wishlist) (*Wishlist, error)
-	GetAll() ([]WishlistInfo, error)
-	GetByID(id int) ([]WishlistInfo, error)
-	Delete(event_id int) error
+	Create(user_id int, new_data Wishlist) (*Wishlist, error)
+	GetAll(user_id int) ([]WishlistInfo, error)
+	GetByID(user_id, id int) ([]WishlistInfo, error)
+	Delete(user_id int, event_id int) error
 }

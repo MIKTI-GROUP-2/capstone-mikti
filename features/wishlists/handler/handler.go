@@ -3,47 +3,64 @@ package handler
 import (
 	"capstone-mikti/features/wishlists"
 	"capstone-mikti/helper"
+	"capstone-mikti/helper/jwt"
 	"strconv"
 
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
 // Controller
 
 type WishlistHandler struct {
 	service wishlists.WishlistServiceInterface
+	jwt     jwt.JWTInterface
 }
 
-func NewHandler(s wishlists.WishlistServiceInterface) *WishlistHandler {
+func NewHandler(s wishlists.WishlistServiceInterface, j jwt.JWTInterface) *WishlistHandler {
 	return &WishlistHandler{
 		service: s,
+		jwt:     j,
 	}
 }
 
 // Create
 func (wh *WishlistHandler) Create() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		// Extract user.id from JWT
+		token, err := wh.jwt.ExtractToken(c)
+
+		if err != nil {
+			c.Logger().Error("Handler : Extract Token Error : ", err)
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Unauthorized", nil))
+		}
+
+		user_id := int(token.ID)
+
+		// Get Request
 		var request WishlistRequest
+
 		if err := c.Bind(&request); err != nil {
 			c.Logger().Error("Handler : Create Bind Error : ", err)
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid request body", nil))
 		}
 
+		// Get Entity
 		newWishlist := wishlists.Wishlist{
-			UserID:  request.UserID,
+			UserID:  user_id,
 			EventID: request.EventID,
 		}
 
-		createdWishlist, err := wh.service.Create(newWishlist)
+		// Call Service
+		createdWishlist, err := wh.service.Create(user_id, newWishlist)
 
 		if err != nil {
-			c.Logger().Error("Handler : Create Error : ", err)
+			c.Logger().Error("Handler : Create Error : ", err.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Create process failed", nil))
 		}
 
+		// Get Response
 		response := WishlistResponse{
 			ID:      createdWishlist.ID,
 			UserID:  createdWishlist.UserID,
@@ -57,7 +74,18 @@ func (wh *WishlistHandler) Create() echo.HandlerFunc {
 // GetAll
 func (wh *WishlistHandler) GetAll() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		result, err := wh.service.GetAll()
+		// Extract user.id from JWT
+		token, err := wh.jwt.ExtractToken(c)
+
+		if err != nil {
+			c.Logger().Error("Handler : Extract Token Error : ", err)
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Unauthorized", nil))
+		}
+
+		user_id := int(token.ID)
+
+		// Call Service
+		result, err := wh.service.GetAll(user_id)
 
 		if err != nil {
 			c.Logger().Info("Handler : GetAll Error : ", err.Error())
@@ -71,18 +99,25 @@ func (wh *WishlistHandler) GetAll() echo.HandlerFunc {
 // GetByID
 func (wh *WishlistHandler) GetByID() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, err := strconv.Atoi(c.Param("id"))
+		// Extract user.id from JWT
+		token, err := wh.jwt.ExtractToken(c)
 
 		if err != nil {
-			c.Logger().Error("Handler : GetByID Invalid id : ", err)
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid id", nil))
+			c.Logger().Error("Handler : Extract Token Error : ", err)
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Unauthorized", nil))
 		}
 
-		result, err := wh.service.GetByID(id)
+		user_id := int(token.ID)
+
+		// Extract wishlist.id from path parameter
+		wishlist_id, _ := strconv.Atoi(c.Param("id"))
+
+		// Call Service
+		result, err := wh.service.GetByID(user_id, wishlist_id)
 
 		if err != nil {
 			c.Logger().Error("Handler : GetByID Error : ", err.Error())
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("GetByID process failed", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("GetByID process failed", nil))
 		}
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("GetByID process success", result))
@@ -92,21 +127,25 @@ func (wh *WishlistHandler) GetByID() echo.HandlerFunc {
 // Delete
 func (wh *WishlistHandler) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		event_id, err := strconv.Atoi(c.Param("event_id"))
+		// Extract user.id from JWT
+		token, err := wh.jwt.ExtractToken(c)
 
 		if err != nil {
-			c.Logger().Error("Handler : Delete Invalid id : ", err)
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid event_id", nil))
+			c.Logger().Error("Handler : Extract Token Error : ", err)
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Unauthorized", nil))
 		}
 
-		err = wh.service.Delete(event_id)
+		user_id := int(token.ID)
+
+		// Extract event.id from path parameter
+		event_id, _ := strconv.Atoi(c.Param("event_id"))
+
+		// Call Service
+		err = wh.service.Delete(user_id, event_id)
 
 		if err != nil {
-			c.Logger().Error("Handler : Delete Error : ", err)
-			if err == gorm.ErrRecordNotFound {
-				return c.JSON(http.StatusNotFound, helper.FormatResponse("Wishlist not found", nil))
-			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete process failed", nil))
+			c.Logger().Error("Handler : Delete Error : ", err.Error())
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Delete process failed", nil))
 		}
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Delete process success", nil))

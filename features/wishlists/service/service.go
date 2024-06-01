@@ -20,9 +20,11 @@ func New(d wishlists.WishlistDataInterface) *WishlistService {
 }
 
 // Create
-func (ws *WishlistService) Create(new_data wishlists.Wishlist) (*wishlists.Wishlist, error) {
-	create, err := ws.data.Create(new_data)
+func (ws *WishlistService) Create(user_id int, new_data wishlists.Wishlist) (*wishlists.Wishlist, error) {
+	// Get Data
+	create, err := ws.data.Create(user_id, new_data)
 
+	// Error Handling
 	if err != nil {
 		logrus.Error("Service : Create Error : ", err.Error())
 		return nil, errors.New("ERROR Create")
@@ -32,33 +34,39 @@ func (ws *WishlistService) Create(new_data wishlists.Wishlist) (*wishlists.Wishl
 }
 
 // GetAll
-func (ws *WishlistService) GetAll() ([]wishlists.WishlistInfo, error) {
-	result, err := ws.data.GetAll()
+func (ws *WishlistService) GetAll(user_id int) ([]wishlists.WishlistInfo, error) {
+	// Get Data
+	getAll, err := ws.data.GetAll(user_id)
 
+	// Error Handling
 	if err != nil {
 		logrus.Error("Service : GetAll Error : ", err.Error())
 		return nil, errors.New("ERROR GetAll")
 	}
 
-	return result, nil
+	return getAll, nil
 }
 
 // GetByID
-func (ws *WishlistService) GetByID(id int) ([]wishlists.WishlistInfo, error) {
-	result, err := ws.data.GetByID(id)
+func (ws *WishlistService) GetByID(user_id, id int) ([]wishlists.WishlistInfo, error) {
+	// Get Data
+	getById, err := ws.data.GetByID(user_id, id)
 
+	// Error Handling
 	if err != nil {
 		logrus.Error("Service : GetByID Error : ", err.Error())
 		return nil, errors.New("ERROR GetByID")
 	}
 
-	return result, nil
+	return getById, nil
 }
 
 // Delete
-func (ws *WishlistService) Delete(event_id int) error {
-	err := ws.data.Delete(event_id)
+func (ws *WishlistService) Delete(user_id int, event_id int) error {
+	// Get Data
+	err := ws.data.Delete(user_id, event_id)
 
+	// Error Handling
 	if err != nil {
 		logrus.Error("Service : Delete Error : ", err.Error())
 		return errors.New("ERROR Delete")
