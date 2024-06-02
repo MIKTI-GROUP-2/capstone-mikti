@@ -1,8 +1,8 @@
 package handler
 
 type EventInput struct {
-	CategoryFK           int    `json:"category_id" form:"category_id" validate:"required"`
-	Title                string `json:"event_title" form:"event_title" validate:"required"`
+	CategoryID           int    `json:"category_id" form:"category_id" validate:"required"`
+	EventTitle           string `json:"event_title" form:"event_title" validate:"required"`
 	StartDate            string `json:"start_date" form:"start_date" validate:"required"`
 	EndDate              string `json:"end_date" form:"start_date" validate:"required"`
 	City                 string `json:"city"  form:"city" validate:"required"`
@@ -11,12 +11,13 @@ type EventInput struct {
 	Highlight            string `json:"highlight" form:"highlight"`
 	ImportantInformation string `json:"important_information" form:"important_information"`
 	Address              string `json:"address"  form:"address" validate:"required"`
-	Image                string `json:"image_url" form:"image_url" validate:"required"`
+	ImageUrl             string `json:"image_url" form:"image_url" validate:"required"`
+	PublicID             string `json:"public_id" form:"public_id"`
 }
 
 type UpdateEvent struct {
-	CategoryFK           int    `json:"category_id" form:"category_id"`
-	Title                string `json:"event_title" form:"event_title"`
+	CategoryID           int    `json:"category_id" form:"category_id"`
+	EventTitle           string `json:"event_title" form:"event_title"`
 	StartDate            string `json:"start_date" form:"start_date"`
 	EndDate              string `json:"end_date" form:"start_date"`
 	City                 string `json:"city"  form:"city"`
@@ -25,6 +26,6 @@ type UpdateEvent struct {
 	Highlight            string `json:"highlight" form:"highlight"`
 	ImportantInformation string `json:"important_information" form:"important_information"`
 	Address              string `json:"address"  form:"address"`
-	Image                string `json:"image_url" form:"image_url"`
+	ImageUrl             string `json:"image_url" form:"image_url"`
 	PublicID             string `json:"public_id" form:"public_id"`
 }

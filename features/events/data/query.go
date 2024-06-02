@@ -34,8 +34,8 @@ func (ed *EventData) GetByTitle(title string) ([]events.Event, error) {
 func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 	var dbData = new(Event)
 
-	dbData.CategoryFK = newData.CategoryFK
-	dbData.Title = newData.Title
+	dbData.CategoryID = newData.CategoryID
+	dbData.EventTitle = newData.EventTitle
 	dbData.City = newData.City
 	dbData.Address = newData.Address
 	dbData.StartingPrice = newData.StartingPrice
@@ -44,12 +44,16 @@ func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 	dbData.Description = newData.Description
 	dbData.Highlight = newData.Highlight
 	dbData.ImportantInformation = newData.ImportantInformation
-	dbData.Image = newData.Image
+	dbData.ImageUrl = newData.ImageUrl
+	dbData.PublicID = newData.PublicID
 
 	if err := ed.db.Create(dbData).Error; err != nil {
 		logrus.Error("DATA : Create Error : ", err.Error())
 		return nil, err
 	}
+
+	newData.StartDate = newData.ParseStartDate.Format("2006-01-02")
+	newData.EndDate = newData.ParseEndDate.Format("2006-01-02")
 
 	return &newData, nil
 }
@@ -57,7 +61,11 @@ func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 func (e *EventData) GetAll() ([]events.AllEvent, error) {
 	var listEvent = []events.AllEvent{}
 
-	err := e.db.Table("events").Where("deleted_at is null").Find(&listEvent).Error
+	err := e.db.Table("events").
+		Select("events.*, categories.category_name").
+		Joins("JOIN categories ON categories.id = events.category_id").
+		Where("events.deleted_at is null").
+		Scan(&listEvent).Error
 
 	if err != nil {
 		logrus.Error("Data : Get All Error : ", err.Error())
@@ -70,9 +78,14 @@ func (e *EventData) GetAll() ([]events.AllEvent, error) {
 func (e *EventData) GetDetail(id int) ([]events.Event, error) {
 	var event = []events.Event{}
 
-	var query = e.db.Where("id = ? ", id).Where("deleted_at is null").First(&event)
+	err := e.db.Table("events").
+		Select("events.*, categories.category_name").
+		Joins("JOIN categories ON categories.id = events.category_id").
+		Where("events.id = ?", id).
+		Where("events.deleted_at is null").
+		First(&event).Error
 
-	if err := query.Error; err != nil {
+	if err != nil {
 		logrus.Error("DATA : Error Get By ID : ", err.Error())
 		return nil, err
 	}
@@ -81,21 +94,24 @@ func (e *EventData) GetDetail(id int) ([]events.Event, error) {
 
 }
 
-func (e *EventData) UpdateEvent(id int, newData events.UpdateEvent) (*events.UpdateEvent, error) {
-	var qry = e.db.Table("events").Where("id = ?", id).Updates(Event{
-		CategoryFK:           newData.CategoryFK,
-		Title:                newData.Title,
-		City:                 newData.City,
-		Address:              newData.Address,
-		StartingPrice:        newData.StartingPrice,
-		StartDate:            newData.ParseStartDate,
-		EndDate:              newData.ParseEndDate,
-		Description:          newData.Description,
-		Highlight:            newData.Highlight,
-		ImportantInformation: newData.ImportantInformation,
-		Image:                newData.Image,
-		PublicID:             newData.PublicID,
-	})
+func (e *EventData) UpdateEvent(id int, newData events.Event) (*events.Event, error) {
+	var qry = e.db.Table("events").
+		Where("id = ?", id).
+		Where("deleted_at is null").
+		Updates(Event{
+			CategoryID:           newData.CategoryID,
+			EventTitle:           newData.EventTitle,
+			City:                 newData.City,
+			Address:              newData.Address,
+			StartingPrice:        newData.StartingPrice,
+			StartDate:            newData.ParseStartDate,
+			EndDate:              newData.ParseEndDate,
+			Description:          newData.Description,
+			Highlight:            newData.Highlight,
+			ImportantInformation: newData.ImportantInformation,
+			ImageUrl:             newData.ImageUrl,
+			PublicID:             newData.PublicID,
+		})
 
 	if err := qry.Error; err != nil {
 		logrus.Error("DATA : Error Update Event : ", err.Error())
@@ -106,6 +122,9 @@ func (e *EventData) UpdateEvent(id int, newData events.UpdateEvent) (*events.Upd
 		logrus.Error("DATA : No Row Affected")
 		return nil, nil
 	}
+
+	newData.StartDate = newData.ParseStartDate.Format("2006-01-02")
+	newData.EndDate = newData.ParseEndDate.Format("2006-01-02")
 
 	return &newData, nil
 }

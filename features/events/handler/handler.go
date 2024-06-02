@@ -43,8 +43,8 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 
 		var serviceInput = new(events.Event)
 
-		serviceInput.CategoryFK = input.CategoryFK
-		serviceInput.Title = input.Title
+		serviceInput.CategoryID = input.CategoryID
+		serviceInput.EventTitle = input.EventTitle
 		serviceInput.City = input.City
 		serviceInput.Address = input.Address
 		serviceInput.StartingPrice = input.StartingPrice
@@ -53,7 +53,8 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 		serviceInput.Description = input.Description
 		serviceInput.Highlight = input.Highlight
 		serviceInput.ImportantInformation = input.ImportantInformation
-		serviceInput.Image = input.Image
+		serviceInput.ImageUrl = input.ImageUrl
+		serviceInput.PublicID = input.PublicID
 
 		result, err := e.service.CreateEvent(*serviceInput)
 
@@ -65,15 +66,7 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Title Already Registered", nil))
 		}
 
-		var response = new(EventResponse)
-		response.CategoryFK = result.CategoryFK
-		response.Title = result.Title
-		response.StartDate = result.StartDate
-		response.EndDate = result.EndDate
-		response.Description = result.Description
-		response.StartingPrice = result.StartingPrice
-
-		return c.JSON(http.StatusCreated, helper.FormatResponse("Succesfuly created event", response))
+		return c.JSON(http.StatusCreated, helper.FormatResponse("Succesfuly created event", result))
 	}
 }
 
@@ -133,9 +126,9 @@ func (e *EventHandler) UpdateEvent() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event Input", nil))
 		}
 
-		var serviceUpdate = new(events.UpdateEvent)
-		serviceUpdate.CategoryFK = input.CategoryFK
-		serviceUpdate.Title = input.Title
+		var serviceUpdate = new(events.Event)
+		serviceUpdate.CategoryID = input.CategoryID
+		serviceUpdate.EventTitle = input.EventTitle
 		serviceUpdate.City = input.City
 		serviceUpdate.Address = input.Address
 		serviceUpdate.StartingPrice = input.StartingPrice
@@ -144,7 +137,7 @@ func (e *EventHandler) UpdateEvent() echo.HandlerFunc {
 		serviceUpdate.Description = input.Description
 		serviceUpdate.Highlight = input.Highlight
 		serviceUpdate.ImportantInformation = input.ImportantInformation
-		serviceUpdate.Image = input.Image
+		serviceUpdate.ImageUrl = input.ImageUrl
 		serviceUpdate.PublicID = input.PublicID
 
 		result, err := e.service.UpdateEvent(int(eventID), *serviceUpdate)

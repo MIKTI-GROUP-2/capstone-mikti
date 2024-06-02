@@ -22,7 +22,7 @@ func New(d events.EventDataInterface, j jwt.JWTInterface) *EventService {
 }
 
 func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) {
-	_, err := e.data.GetByTitle(newData.Title)
+	_, err := e.data.GetByTitle(newData.EventTitle)
 
 	if err == nil {
 		logrus.Error("Service : Titke already registered")
@@ -36,6 +36,7 @@ func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) 
 
 	newData.ParseStartDate = parseStartDate
 	newData.ParseEndDate = parseEndDate
+
 	result, err := e.data.CreateEvent(newData)
 	if err != nil {
 		logrus.Error("Service : Error Create : ", err.Error())
@@ -67,7 +68,7 @@ func (e *EventService) GetDetail(id int) ([]events.Event, error) {
 	return result, nil
 }
 
-func (e *EventService) UpdateEvent(id int, newData events.UpdateEvent) (*events.UpdateEvent, error) {
+func (e *EventService) UpdateEvent(id int, newData events.Event) (*events.Event, error) {
 	layout := "2006-01-02"
 
 	parseStartDate, _ := time.Parse(layout, newData.StartDate)
