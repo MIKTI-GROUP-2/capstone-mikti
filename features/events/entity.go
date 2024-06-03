@@ -7,17 +7,14 @@ import (
 )
 
 type AllEvent struct {
-	ID             uint      `json:"id"`
-	CategoryID     int       `json:"category_id"`
-	CategoryName   string    `json:"category_name"`
-	EventTitle     string    `json:"event_title"`
-	StartDate      string    `json:"start_date"`
-	EndDate        string    `json:"end_date"`
-	ParseStartDate time.Time `json:"-"`
-	ParseEndDate   time.Time `json:"-"`
-	StartingPrice  int       `json:"starting_price"`
-	City           string    `json:"city"`
-	EventName      string    `json:"event_name"`
+	ID            uint   `json:"id"`
+	CategoryID    int    `json:"category_id"`
+	CategoryName  string `json:"category_name"`
+	EventTitle    string `json:"event_title"`
+	StartDate     string `json:"start_date"`
+	EndDate       string `json:"end_date"`
+	StartingPrice int    `json:"starting_price"`
+	City          string `json:"city"`
 }
 
 type Event struct {
@@ -50,7 +47,7 @@ type EventHandlerInterface interface {
 
 type EventServiceInterface interface {
 	CreateEvent(newData Event) (*Event, error)
-	GetAll() ([]AllEvent, error)
+	GetAll(category string, times string, city string, price int) ([]AllEvent, error)
 	GetDetail(id int) ([]Event, error)
 	UpdateEvent(id int, newData Event) (*Event, error)
 	DeleteEvent(id int) (bool, error)
@@ -60,7 +57,7 @@ type EventServiceInterface interface {
 type EventDataInterface interface {
 	CreateEvent(newData Event) (*Event, error)
 	GetByTitle(username string) ([]Event, error)
-	GetAll() ([]AllEvent, error)
+	GetAll(category string, times string, city string, price int) ([]AllEvent, error)
 	GetDetail(id int) ([]Event, error)
 	UpdateEvent(id int, newData Event) (*Event, error)
 	DeleteEvent(id int) (bool, error)

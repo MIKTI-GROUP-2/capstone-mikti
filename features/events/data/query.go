@@ -3,6 +3,7 @@ package data
 import (
 	events "capstone-mikti/features/events"
 	"errors"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -58,16 +59,38 @@ func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 	return &newData, nil
 }
 
-func (e *EventData) GetAll() ([]events.AllEvent, error) {
+func (e *EventData) GetAll(category string, times string, city string, price int) ([]events.AllEvent, error) {
 	var listEvent = []events.AllEvent{}
 
-	err := e.db.Table("events").
+	var query = e.db.Table("events").
 		Select("events.*, categories.category_name").
 		Joins("JOIN categories ON categories.id = events.category_id").
 		Where("events.deleted_at is null").
-		Scan(&listEvent).Error
+		Order("events.created_at DESC")
 
-	if err != nil {
+	layout := "2006-01-02"
+
+	if category != "" {
+		query.Where("categories.category_name LIKE ?", "%"+category+"%")
+	}
+
+	if city != "" {
+		query.Where("events.city LIKE ?", "%"+city+"%")
+	}
+
+	if price != 0 {
+		priceRange := 0.2
+		minPrice := float64(price) * (1 - priceRange)
+		maxPrice := float64(price) * (1 + priceRange)
+		query = query.Where("events.starting_price BETWEEN ? AND ?", minPrice, maxPrice)
+	}
+
+	if times != "" {
+		parseTimes, _ := time.Parse(layout, times)
+		query.Where("events.start_date <= ? AND events.end_date >= ?", parseTimes, parseTimes)
+	}
+
+	if err := query.Scan(&listEvent).Error; err != nil {
 		logrus.Error("Data : Get All Error : ", err.Error())
 		return listEvent, err
 	}
