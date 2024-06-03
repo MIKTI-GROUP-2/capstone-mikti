@@ -46,9 +46,9 @@ func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) 
 	return result, nil
 }
 
-func (e *EventService) GetAll(category string, times string, city string, price int, sort string) ([]events.AllEvent, error) {
+func (e *EventService) GetAll(title string, category string, times string, city string, price int, sort string) ([]events.AllEvent, error) {
 
-	result, err := e.data.GetAll(category, times, city, price, sort)
+	result, err := e.data.GetAll(title, category, times, city, price, sort)
 
 	if err != nil {
 		logrus.Error("Service : Get All Eerror : ", err.Error())

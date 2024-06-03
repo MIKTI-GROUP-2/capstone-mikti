@@ -73,13 +73,14 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 func (e *EventHandler) GetAll() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
+		title := c.QueryParam("title")
 		category := c.QueryParam("category")
 		times := c.QueryParam("time")
 		city := c.QueryParam("city")
 		price, _ := strconv.Atoi(c.QueryParam("price"))
 		sort := c.QueryParam("sortir")
 
-		getAll, err := e.service.GetAll(category, times, city, price, sort)
+		getAll, err := e.service.GetAll(title, category, times, city, price, sort)
 
 		if err != nil {
 			c.Logger().Info("Handler : Get All Error : ", err.Error())

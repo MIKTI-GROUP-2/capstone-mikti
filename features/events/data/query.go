@@ -59,7 +59,7 @@ func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 	return &newData, nil
 }
 
-func (e *EventData) GetAll(category string, times string, city string, price int, sort string) ([]events.AllEvent, error) {
+func (e *EventData) GetAll(title string, category string, times string, city string, price int, sort string) ([]events.AllEvent, error) {
 	var listEvent = []events.AllEvent{}
 
 	var query = e.db.Table("events").
@@ -68,6 +68,10 @@ func (e *EventData) GetAll(category string, times string, city string, price int
 		Where("events.deleted_at is null")
 
 	layout := "2006-01-02"
+
+	if title != "" {
+		query.Where("events.event_title LIKE ?", "%"+title+"%")
+	}
 
 	if category != "" {
 		query.Where("categories.category_name LIKE ?", "%"+category+"%")
