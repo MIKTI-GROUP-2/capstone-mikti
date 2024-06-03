@@ -59,14 +59,13 @@ func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 	return &newData, nil
 }
 
-func (e *EventData) GetAll(category string, times string, city string, price int) ([]events.AllEvent, error) {
+func (e *EventData) GetAll(category string, times string, city string, price int, sort string) ([]events.AllEvent, error) {
 	var listEvent = []events.AllEvent{}
 
 	var query = e.db.Table("events").
 		Select("events.*, categories.category_name").
 		Joins("JOIN categories ON categories.id = events.category_id").
-		Where("events.deleted_at is null").
-		Order("events.created_at DESC")
+		Where("events.deleted_at is null")
 
 	layout := "2006-01-02"
 
@@ -88,6 +87,17 @@ func (e *EventData) GetAll(category string, times string, city string, price int
 	if times != "" {
 		parseTimes, _ := time.Parse(layout, times)
 		query.Where("events.start_date <= ? AND events.end_date >= ?", parseTimes, parseTimes)
+	}
+
+	switch sort {
+	case "terbaru":
+		query.Order("events.created_at DESC")
+	case "termahal":
+		query.Order("events.starting_price DESC")
+	case "termurah":
+		query.Order("events.starting_price ASC")
+	default:
+		query.Order("events.created_at DESC")
 	}
 
 	if err := query.Scan(&listEvent).Error; err != nil {

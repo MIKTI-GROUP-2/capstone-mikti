@@ -77,8 +77,9 @@ func (e *EventHandler) GetAll() echo.HandlerFunc {
 		times := c.QueryParam("time")
 		city := c.QueryParam("city")
 		price, _ := strconv.Atoi(c.QueryParam("price"))
+		sort := c.QueryParam("sortir")
 
-		getAll, err := e.service.GetAll(category, times, city, price)
+		getAll, err := e.service.GetAll(category, times, city, price, sort)
 
 		if err != nil {
 			c.Logger().Info("Handler : Get All Error : ", err.Error())
