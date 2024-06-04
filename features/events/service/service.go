@@ -3,6 +3,7 @@ package service
 import (
 	events "capstone-mikti/features/events"
 	"capstone-mikti/helper/jwt"
+	"capstone-mikti/utils/cloudinary"
 	"errors"
 	"time"
 
@@ -10,25 +11,34 @@ import (
 )
 
 type EventService struct {
-	data events.EventDataInterface
-	jwt  jwt.JWTInterface
+	data       events.EventDataInterface
+	jwt        jwt.JWTInterface
+	cloudinary cloudinary.CloudinaryInterface
 }
 
-func New(d events.EventDataInterface, j jwt.JWTInterface) *EventService {
+func New(d events.EventDataInterface, j jwt.JWTInterface, c cloudinary.CloudinaryInterface) *EventService {
 	return &EventService{
-		data: d,
-		jwt:  j,
+		data:       d,
+		jwt:        j,
+		cloudinary: c,
 	}
 }
 
 func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) {
 	_, err := e.data.GetByTitle(newData.EventTitle)
 
-	if err == nil {
+	if err != nil {
 		logrus.Error("Service : Titke already registered")
 		return nil, errors.New("ERROR Title already registered by another user")
 	}
 
+	secureURL, publicId, err := e.cloudinary.UploadImageHelper(newData.ImageFile)
+	if err != nil {
+		logrus.Error("Error uploading image: ", err)
+		return nil, errors.New("Error Upload Image")
+	}
+
+	//waktu
 	layout := "2006-01-02"
 
 	parseStartDate, _ := time.Parse(layout, newData.StartDate)
@@ -36,6 +46,9 @@ func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) 
 
 	newData.ParseStartDate = parseStartDate
 	newData.ParseEndDate = parseEndDate
+
+	newData.ImageUrl = secureURL
+	newData.PublicID = publicId
 
 	result, err := e.data.CreateEvent(newData)
 	if err != nil {

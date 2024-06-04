@@ -19,10 +19,10 @@ func New(db *gorm.DB) *EventData {
 	}
 }
 
-func (ed *EventData) GetByTitle(title string) ([]events.Event, error) {
-	var dbData = []events.Event{}
+func (ed *EventData) GetByTitle(title string) ([]events.TitleEvent, error) {
+	var dbData = []events.TitleEvent{}
 
-	var qry = ed.db.Where("event_title = ?", title).First(&dbData)
+	var qry = ed.db.Table("events").Where("event_title = ?", title).Find(&dbData)
 
 	if err := qry.Error; err != nil {
 		logrus.Error("DATA : Error Get By Title : ", err.Error())

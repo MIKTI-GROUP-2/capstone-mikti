@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type EventHandler struct {
@@ -31,7 +32,8 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 		}
 
 		var input = new(EventInput)
-		if err := c.Bind(&input); err != nil {
+
+		if err := c.Bind(input); err != nil {
 			c.Logger().Info("Handler : Bind Input Error : ", err.Error())
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event Input", nil))
 		}
@@ -41,8 +43,22 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponseValidation("Invalid Format Request", errors))
 		}
 
-		var serviceInput = new(events.Event)
+		//image
+		fileHeader, err := c.FormFile("image_file")
 
+		if err != nil {
+			logrus.Error("Error receive image file: ", err)
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Error Receive Image", nil))
+		}
+
+		file, err := fileHeader.Open()
+
+		if err != nil {
+			logrus.Error("Error opening file: ", err)
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Error opening file", nil))
+		}
+
+		var serviceInput = new(events.Event)
 		serviceInput.CategoryID = input.CategoryID
 		serviceInput.EventTitle = input.EventTitle
 		serviceInput.City = input.City
@@ -53,11 +69,9 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 		serviceInput.Description = input.Description
 		serviceInput.Highlight = input.Highlight
 		serviceInput.ImportantInformation = input.ImportantInformation
-		serviceInput.ImageUrl = input.ImageUrl
-		serviceInput.PublicID = input.PublicID
+		serviceInput.ImageFile = file
 
 		result, err := e.service.CreateEvent(*serviceInput)
-
 		if err != nil {
 			if strings.Contains(err.Error(), "Title already registered by another event") {
 				return c.JSON(http.StatusBadRequest, helper.FormatResponse("Title Already Registered", nil))
@@ -66,7 +80,20 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Title Already Registered", nil))
 		}
 
-		return c.JSON(http.StatusCreated, helper.FormatResponse("Succesfuly created event", result))
+		response := new(EventResponse)
+		response.CategoryID = result.CategoryID
+		response.EventTitle = result.EventTitle
+		response.City = result.City
+		response.Address = result.Address
+		response.StartingPrice = result.StartingPrice
+		response.StartDate = result.StartDate
+		response.EndDate = result.EndDate
+		response.Description = result.Description
+		response.Highlight = result.Highlight
+		response.ImportantInformation = result.ImportantInformation
+		response.ImageUrl = result.ImageUrl
+
+		return c.JSON(http.StatusCreated, helper.FormatResponse("Succesfuly created event", response))
 	}
 }
 

@@ -11,6 +11,7 @@ import (
 	"capstone-mikti/helper/enkrip"
 	"capstone-mikti/helper/jwt"
 	"capstone-mikti/routes"
+	"capstone-mikti/utils/cloudinary"
 	"capstone-mikti/utils/database"
 
 	userData "capstone-mikti/features/users/data"
@@ -55,6 +56,7 @@ func InitializedServer() *server.Server {
 		enkrip.New,
 		email.New,
 		jwt.NewJWT,
+		cloudinary.InitCloud,
 		// JANGAN DIRUBAH
 
 		userSet,

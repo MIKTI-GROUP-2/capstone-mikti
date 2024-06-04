@@ -21,6 +21,7 @@ import (
 	"capstone-mikti/helper/jwt"
 	"capstone-mikti/routes"
 	"capstone-mikti/server"
+	"capstone-mikti/utils/cloudinary"
 	"capstone-mikti/utils/database"
 	"github.com/google/wire"
 )
@@ -37,7 +38,8 @@ func InitializedServer() *server.Server {
 	userService := service.New(userData, jwtInterface, hashInterface, emailInterface)
 	userHandler := handler.NewHandler(userService, jwtInterface)
 	eventData := data2.New(db)
-	eventService := service2.New(eventData, jwtInterface)
+	cloudinaryInterface := cloudinary.InitCloud(programmingConfig)
+	eventService := service2.New(eventData, jwtInterface, cloudinaryInterface)
 	eventHandler := handler2.NewHandler(eventService, jwtInterface)
 	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
