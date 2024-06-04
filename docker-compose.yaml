@@ -35,6 +35,7 @@ services:
       - REFSECRET=${REFSECRET}
       - EMAIL=${EMAIL_SENDER}
       - PASSWORD=${EMAIL_PASSWORD_SENDER}
+      - CLOUDURL=${CLOUDINARY_URL}
     ports:
       - '8888:8888'
     networks:

@@ -37,12 +37,13 @@ jobs:
           REF_SECRET: ${{ secrets.REFSECRET }}
           EMAIL_SENDER : ${{secrets.EMAIL_SENDER}}
           EMAIL_PASSWORD_SENDER : ${{secrets.EMAIL_PASSWORD_SENDER}}
+          CLOUDINARY_URL : ${{secrets.CLOUDINARY_URL}}
         with:
           host: ${{secrets.HOST}}
           username: ${{secrets.USERNAME}}
           key: ${{secrets.KEY}}
           port: ${{secrets.PORT}}
-          envs: DB_USER, DB_PASS, DB_PORT, DB_NAME,SERVER_PORT,JWT_SECRET,REF_SECRET,EMAIL_SENDER,EMAIL_PASSWORD_SENDER,DB_HOST
+          envs: DB_USER, DB_PASS, DB_PORT, DB_NAME,SERVER_PORT,JWT_SECRET,REF_SECRET,EMAIL_SENDER,EMAIL_PASSWORD_SENDER,DB_HOST,CLOUDINARY_URL
           script: |
             export DBUSER=$DB_USER
             export DBPASS=$DB_PASS
@@ -54,6 +55,7 @@ jobs:
             export REFSECRET=$REF_SECRET
             export EMAIL_SENDER=$EMAIL_SENDER
             export EMAIL_PASSWORD_SENDER=$EMAIL_PASSWORD_SENDER
+            export CLOUDINARY_URL=$CLOUDINARY_URL
 
             sudo docker stop ticketing-app
             sudo docker rm ticketing-app
