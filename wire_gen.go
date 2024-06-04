@@ -8,6 +8,10 @@ package main
 
 import (
 	"capstone-mikti/configs"
+	"capstone-mikti/features/categories"
+	data2 "capstone-mikti/features/categories/data"
+	handler2 "capstone-mikti/features/categories/handler"
+	service2 "capstone-mikti/features/categories/service"
 	"capstone-mikti/features/users"
 	"capstone-mikti/features/users/data"
 	"capstone-mikti/features/users/handler"
@@ -32,7 +36,10 @@ func InitializedServer() *server.Server {
 	emailInterface := email.New(programmingConfig)
 	userService := service.New(userData, jwtInterface, hashInterface, emailInterface)
 	userHandler := handler.NewHandler(userService, jwtInterface)
-	echo := routes.NewRoute(programmingConfig, userHandler)
+	categoryData := data2.New(db)
+	categoryService := service2.New(categoryData)
+	categoryHandler := handler2.NewHandler(categoryService, jwtInterface)
+	echo := routes.NewRoute(programmingConfig, userHandler, categoryHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
 	return serverServer
 }
@@ -40,3 +47,5 @@ func InitializedServer() *server.Server {
 // injector.go:
 
 var userSet = wire.NewSet(data.New, wire.Bind(new(users.UserDataInterface), new(*data.UserData)), service.New, wire.Bind(new(users.UserServiceInterface), new(*service.UserService)), handler.NewHandler, wire.Bind(new(users.UserHandlerInterface), new(*handler.UserHandler)))
+
+var categorySet = wire.NewSet(data2.New, wire.Bind(new(categories.CategoryDataInterface), new(*data2.CategoryData)), service2.New, wire.Bind(new(categories.CategoryServiceInterface), new(*service2.CategoryService)), handler2.NewHandler, wire.Bind(new(categories.CategoryHandlerInterface), new(*handler2.CategoryHandler)))

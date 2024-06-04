@@ -50,7 +50,7 @@ func (cd *CategoryData) GetByCategoryName(Name string) (*categories.Category, er
 		return nil, err
 	}
 	var result = new(categories.Category)
-	result.CategoryID = dbData.ID
+	result.ID = dbData.ID
 	result.CategoryName = dbData.CategoryName
 
 	return result, nil
@@ -72,8 +72,8 @@ func (cd *CategoryData) UpdateName(id int, newData categories.UpdateCategory) (b
 
 	return true, nil
 }
-func (cd *CategoryData) GetCategories() ([]Category, error) {
-	var categories []Category
+func (cd *CategoryData) GetCategories() ([]categories.Category, error) {
+	var categories []categories.Category
 
 	err := cd.db.Find(&categories).Error
 

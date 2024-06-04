@@ -26,10 +26,9 @@ func NewHandler(s categories.CategoryServiceInterface, j jwt.JWTInterface) *Cate
 func (ch *CategoryHandler) CreateCategory() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input = new(CreateCategoryRequest)
-		err := ch.jwt.ValidateRole(c)
 
-		if err != true {
-			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("You Have No Permission to Access this Feature"))
+		if err := ch.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Restricted Access", nil))
 		}
 
@@ -56,7 +55,7 @@ func (ch *CategoryHandler) CreateCategory() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Register Process Failed", nil))
 		}
 		var response = new(CategoryResponse)
-		response.CategoryId = int(result.CategoryID)
+		response.CategoryId = int(result.ID)
 		response.CategoryName = result.CategoryName
 
 		return c.JSON(http.StatusCreated, helper.FormatResponse("Success Creating New Category", response))
@@ -68,10 +67,8 @@ func (ch *CategoryHandler) UpdateCategory() echo.HandlerFunc {
 		id, _ := strconv.Atoi(c.Param("id"))
 
 		var input = new(UpdateCategoryRequest)
-		err := ch.jwt.ValidateRole(c)
-
-		if err != true {
-			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("You Have No Permission to Access this Feature"))
+		if err := ch.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Restricted Access", nil))
 		}
 
@@ -113,6 +110,9 @@ func (ch *CategoryHandler) GetCategory() echo.HandlerFunc {
 			c.Logger().Info("Handler : Get Categories Error : ", err_get.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get Categories Error", nil))
 		}
-		return c.JSON(http.StatusOK, helper.FormatResponse("This is the Detail of category", res))
+		response := new(CategoryResponse)
+		response.CategoryId = int(res.ID)
+		response.CategoryName = res.CategoryName
+		return c.JSON(http.StatusOK, helper.FormatResponse("This is the Detail of category", response))
 	}
 }

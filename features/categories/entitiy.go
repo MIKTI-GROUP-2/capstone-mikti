@@ -3,7 +3,7 @@ package categories
 import "github.com/labstack/echo/v4"
 
 type Category struct {
-	CategoryID   uint   `json:"category_id"`
+	ID           uint   `json:"id"`
 	CategoryName string `json:"category_name"`
 }
 type UpdateCategory struct {
