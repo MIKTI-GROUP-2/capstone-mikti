@@ -2,13 +2,14 @@ package routes
 
 import (
 	"capstone-mikti/configs"
+	"capstone-mikti/features/tickets"
 	"capstone-mikti/features/users"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
-func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface) *echo.Echo {
+func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, th tickets.TicketHandlerInterface) *echo.Echo {
 	e := echo.New()
 
 	//Akses khusus harus login dlu
@@ -30,6 +31,10 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface) *echo
 	// Route Group event
 	groupEvent := group.Group("/event")
 	groupEvent.GET("", uh.Profile(), JwtAuth)
+
+	// Route Ticket
+	groupTicket := group.Group("/ticket")
+	groupTicket.GET("", th.GetAll(), JwtAuth)
 
 	return e
 }
