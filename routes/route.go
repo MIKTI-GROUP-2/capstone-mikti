@@ -11,6 +11,9 @@ import (
 func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface) *echo.Echo {
 	e := echo.New()
 
+	//Akses khusus harus login dlu
+	JwtAuth := echojwt.JWT([]byte(c.Secret))
+
 	group := e.Group("/api/v1")
 
 	// Route Authentication
@@ -18,11 +21,15 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface) *echo
 	group.POST("/login", uh.Login())
 	group.POST("/forget-password", uh.ForgetPasswordWeb())
 	group.POST("/reset-password", uh.ResetPassword())
-	group.POST("/refresh-token", uh.RefreshToken(), echojwt.JWT([]byte(c.Secret)))
+	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
 
 	// Route Profile
-	group.GET("/profile", uh.Profile(), echojwt.JWT([]byte(c.Secret)))
-	group.POST("/profile/update", uh.UpdateProfile(), echojwt.JWT([]byte(c.Secret)))
+	group.GET("/profile", uh.Profile(), JwtAuth)
+	group.POST("/profile/update", uh.UpdateProfile(), JwtAuth)
+
+	// Route Group event
+	groupEvent := group.Group("/event")
+	groupEvent.GET("", uh.Profile(), JwtAuth)
 
 	return e
 }
