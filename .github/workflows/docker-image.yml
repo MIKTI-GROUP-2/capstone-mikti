@@ -38,12 +38,14 @@ jobs:
           EMAIL_SENDER : ${{secrets.EMAIL_SENDER}}
           EMAIL_PASSWORD_SENDER : ${{secrets.EMAIL_PASSWORD_SENDER}}
           CLOUDINARY_URL : ${{secrets.CLOUDINARY_URL}}
+          MT_SERVER_KEY : ${{secrets.MT_SERVER_KEY}}
+          MT_ENV : ${{secrets.MT_ENV}}
         with:
           host: ${{secrets.HOST}}
           username: ${{secrets.USERNAME}}
           key: ${{secrets.KEY}}
           port: ${{secrets.PORT}}
-          envs: DB_USER, DB_PASS, DB_PORT, DB_NAME,SERVER_PORT,JWT_SECRET,REF_SECRET,EMAIL_SENDER,EMAIL_PASSWORD_SENDER,DB_HOST,CLOUDINARY_URL
+          envs: DB_USER, DB_PASS, DB_PORT, DB_NAME,SERVER_PORT,JWT_SECRET,REF_SECRET,EMAIL_SENDER,EMAIL_PASSWORD_SENDER,DB_HOST,CLOUDINARY_URL,MT_SERVER_KEY,MT_ENV
           script: |
             export DBUSER=$DB_USER
             export DBPASS=$DB_PASS
@@ -56,6 +58,8 @@ jobs:
             export EMAIL_SENDER=$EMAIL_SENDER
             export EMAIL_PASSWORD_SENDER=$EMAIL_PASSWORD_SENDER
             export CLOUDINARY_URL=$CLOUDINARY_URL
+            export MT_SERVER_KEY=$MT_SERVER_KEY
+            export MT_ENV=$MT_ENV
 
             sudo docker stop ticketing-app
             sudo docker rm ticketing-app
