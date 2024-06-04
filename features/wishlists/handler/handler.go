@@ -53,7 +53,7 @@ func (wh *WishlistHandler) Create() echo.HandlerFunc {
 		}
 
 		// Call Service
-		createdWishlist, err := wh.service.Create(user_id, newWishlist)
+		create, err := wh.service.Create(user_id, newWishlist)
 
 		if err != nil {
 			c.Logger().Error("Handler : Create Error : ", err.Error())
@@ -62,9 +62,9 @@ func (wh *WishlistHandler) Create() echo.HandlerFunc {
 
 		// Get Response
 		response := WishlistResponse{
-			ID:      createdWishlist.ID,
-			UserID:  createdWishlist.UserID,
-			EventID: createdWishlist.EventID,
+			ID:      create.ID,
+			UserID:  create.UserID,
+			EventID: create.EventID,
 		}
 
 		return c.JSON(http.StatusCreated, helper.FormatResponse("Create process success", response))
@@ -85,14 +85,14 @@ func (wh *WishlistHandler) GetAll() echo.HandlerFunc {
 		user_id := int(token.ID)
 
 		// Call Service
-		result, err := wh.service.GetAll(user_id)
+		getAll, err := wh.service.GetAll(user_id)
 
 		if err != nil {
-			c.Logger().Info("Handler : GetAll Error : ", err.Error())
+			c.Logger().Error("Handler : GetAll Error : ", err.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("GetAll process failed", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("GetAll process success", result))
+		return c.JSON(http.StatusOK, helper.FormatResponse("GetAll process success", getAll))
 	}
 }
 
@@ -113,14 +113,14 @@ func (wh *WishlistHandler) GetByID() echo.HandlerFunc {
 		wishlist_id, _ := strconv.Atoi(c.Param("id"))
 
 		// Call Service
-		result, err := wh.service.GetByID(user_id, wishlist_id)
+		getById, err := wh.service.GetByID(user_id, wishlist_id)
 
 		if err != nil {
 			c.Logger().Error("Handler : GetByID Error : ", err.Error())
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("GetByID process failed", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("GetByID process failed", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("GetByID process success", result))
+		return c.JSON(http.StatusOK, helper.FormatResponse("GetByID process success", getById))
 	}
 }
 
@@ -145,7 +145,7 @@ func (wh *WishlistHandler) Delete() echo.HandlerFunc {
 
 		if err != nil {
 			c.Logger().Error("Handler : Delete Error : ", err.Error())
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Delete process failed", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete process failed", nil))
 		}
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Delete process success", nil))
