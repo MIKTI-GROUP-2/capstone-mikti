@@ -35,6 +35,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, th ti
 	// Route Ticket
 	groupTicket := group.Group("/ticket")
 	groupTicket.GET("", th.GetAll(), JwtAuth)
+	groupTicket.GET("/:id", th.GetByID(), JwtAuth)
 
 	return e
 }

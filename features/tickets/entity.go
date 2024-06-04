@@ -30,14 +30,17 @@ type TicketInfo struct {
 // Controller
 type TicketHandlerInterface interface {
 	GetAll() echo.HandlerFunc
+	GetByID() echo.HandlerFunc
 }
 
 // Service
 type TicketServiceInterface interface {
 	GetAll() ([]TicketInfo, error)
+	GetByID(id int) ([]TicketInfo, error)
 }
 
 // Repository
 type TicketDataInterface interface {
 	GetAll() ([]TicketInfo, error)
+	GetByID(id int) ([]TicketInfo, error)
 }

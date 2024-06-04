@@ -19,7 +19,7 @@ func New(db *gorm.DB) *TicketData {
 	}
 }
 
-// Create
+// GetAll
 func (td *TicketData) GetAll() ([]tickets.TicketInfo, error) {
 	// Get Entity
 	var ticket = []tickets.TicketInfo{}
@@ -28,6 +28,27 @@ func (td *TicketData) GetAll() ([]tickets.TicketInfo, error) {
 	err := td.db.Table("tickets").
 		Select("tickets.id, tickets.event_id, events.event_title, tickets.name, tickets.ticket_date, tickets.quantity, tickets.price").
 		Joins("JOIN events on events.id = tickets.event_id").
+		Find(&ticket).Error
+
+	// Error Handling
+	if err != nil {
+		logrus.Error("DATA : GetAll Error : ", err.Error())
+		return nil, err
+	}
+
+	return ticket, nil
+}
+
+// GetByID
+func (td *TicketData) GetByID(id int) ([]tickets.TicketInfo, error) {
+	// Get Entity
+	var ticket = []tickets.TicketInfo{}
+
+	// Query
+	err := td.db.Table("tickets").
+		Select("tickets.id, tickets.event_id, events.event_title, tickets.name, tickets.ticket_date, tickets.quantity, tickets.price").
+		Joins("JOIN events on events.id = tickets.event_id").
+		Where("tickets.id = ?", id).
 		Find(&ticket).Error
 
 	// Error Handling
