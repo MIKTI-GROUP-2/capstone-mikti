@@ -35,6 +35,7 @@ type WishlistServiceInterface interface {
 
 // Repository
 type WishlistDataInterface interface {
+	CheckUnique(user_id, event_id int) ([]Wishlist, error)
 	Create(user_id int, new_data Wishlist) (*Wishlist, error)
 	GetAll(user_id int) ([]WishlistInfo, error)
 	GetByID(user_id, id int) ([]WishlistInfo, error)

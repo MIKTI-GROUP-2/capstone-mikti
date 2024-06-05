@@ -19,6 +19,26 @@ func New(db *gorm.DB) *WishlistData {
 	}
 }
 
+// CheckUnique
+func (wd *WishlistData) CheckUnique(user_id, event_id int) ([]wishlists.Wishlist, error) {
+	// Get Entity
+	var wishlist = []wishlists.Wishlist{}
+
+	// Query
+	err := wd.db.Table("wishlists").
+		Select("*").
+		Where("wishlists.user_id = ? AND wishlists.event_id = ?", user_id, event_id).
+		Find(&wishlist).Error
+
+	// Error Handling
+	if err != nil {
+		logrus.Error("DATA : CheckUnique Error : ", err.Error())
+		return nil, err
+	}
+
+	return wishlist, nil
+}
+
 // Create
 func (wd *WishlistData) Create(user_id int, new_data wishlists.Wishlist) (*wishlists.Wishlist, error) {
 	// Get Entity

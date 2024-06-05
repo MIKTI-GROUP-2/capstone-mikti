@@ -21,7 +21,21 @@ func New(d wishlists.WishlistDataInterface) *WishlistService {
 
 // Create
 func (ws *WishlistService) Create(user_id int, new_data wishlists.Wishlist) (*wishlists.Wishlist, error) {
-	// Get Data
+	// Get Data CheckUnique
+	checkUnique, err := ws.data.CheckUnique(user_id, new_data.EventID)
+
+	// Error Handling
+	if err != nil {
+		logrus.Error("Service : CheckUnique Error : ", err.Error())
+		return nil, errors.New("ERROR CheckUnique")
+	}
+
+	if len(checkUnique) > 0 {
+		logrus.Error("Service : Event already exists in this user's wishlist")
+		return nil, errors.New("EROR Event already exists")
+	}
+
+	// Get Data Create
 	create, err := ws.data.Create(user_id, new_data)
 
 	// Error Handling
