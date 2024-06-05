@@ -57,7 +57,7 @@ type EventServiceInterface interface {
 	CreateEvent(newData Event) (*Event, error)
 	GetAll(title string, category string, times string, city string, price int, sort string) ([]AllEvent, error)
 	GetDetail(id int) ([]Event, error)
-	UpdateEvent(id int, newData Event) (*Event, error)
+	UpdateEvent(id int, newData Event) (bool, error)
 	DeleteEvent(id int) (bool, error)
 }
 
@@ -66,7 +66,7 @@ type EventDataInterface interface {
 	GetByTitle(username string) ([]TitleEvent, error)
 	GetAll(title string, category string, times string, city string, price int, sort string) ([]AllEvent, error)
 	GetDetail(id int) ([]Event, error)
-	UpdateEvent(id int, newData Event) (*Event, error)
+	UpdateEvent(id int, newData Event) (bool, error)
 	DeleteEvent(id int) (bool, error)
 	GetPublicID(id int) (string, error)
 }

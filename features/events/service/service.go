@@ -1,6 +1,7 @@
 package service
 
 import (
+	"capstone-mikti/features/categories"
 	events "capstone-mikti/features/events"
 	"capstone-mikti/helper/jwt"
 	"capstone-mikti/utils/cloudinary"
@@ -11,23 +12,35 @@ import (
 )
 
 type EventService struct {
-	data       events.EventDataInterface
-	jwt        jwt.JWTInterface
-	cloudinary cloudinary.CloudinaryInterface
+	data         events.EventDataInterface
+	jwt          jwt.JWTInterface
+	cloudinary   cloudinary.CloudinaryInterface
+	dataCategory categories.CategoryDataInterface
 }
 
-func New(d events.EventDataInterface, j jwt.JWTInterface, c cloudinary.CloudinaryInterface) *EventService {
+func New(d events.EventDataInterface, j jwt.JWTInterface, c cloudinary.CloudinaryInterface, dc categories.CategoryDataInterface) *EventService {
 	return &EventService{
-		data:       d,
-		jwt:        j,
-		cloudinary: c,
+		data:         d,
+		jwt:          j,
+		cloudinary:   c,
+		dataCategory: dc,
 	}
 }
 
 func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) {
 
-	eventTitle, err := e.data.GetByTitle(newData.EventTitle)
+	categoryEvent, err := e.dataCategory.GetByID(newData.CategoryID)
+	if err != nil {
+		logrus.Error("Service : Error get category")
+		return nil, errors.New("ERROR get category")
+	}
 
+	if categoryEvent.ID == 0 {
+		logrus.Error("Service : Category Not Found")
+		return nil, errors.New("ERROR Category Not Found")
+	}
+
+	eventTitle, err := e.data.GetByTitle(newData.EventTitle)
 	if err != nil {
 		logrus.Error("Service : Error get title")
 		return nil, errors.New("ERROR get title")
@@ -88,18 +101,33 @@ func (e *EventService) GetDetail(id int) ([]events.Event, error) {
 	return result, nil
 }
 
-func (e *EventService) UpdateEvent(id int, newData events.Event) (*events.Event, error) {
+func (e *EventService) UpdateEvent(id int, newData events.Event) (bool, error) {
 
-	eventTitle, err := e.data.GetByTitle(newData.EventTitle)
+	if newData.CategoryID != 0 {
+		categoryEvent, err := e.dataCategory.GetByID(newData.CategoryID)
+		if err != nil {
+			logrus.Error("Service : Error get category")
+			return false, errors.New("ERROR get category")
+		}
 
-	if err != nil {
-		logrus.Error("Service : Error get Event Title")
-		return nil, errors.New("ERROR get Event Title")
+		if categoryEvent.ID == 0 {
+			logrus.Error("Service : Category Not Found")
+			return false, errors.New("ERROR Category Not Found")
+		}
+
 	}
 
-	if len(eventTitle) > 0 {
-		logrus.Error("Service : Titke already registered")
-		return nil, errors.New("ERROR Title already registered by another event")
+	if newData.EventTitle != "" {
+		eventTitle, err := e.data.GetByTitle(newData.EventTitle)
+		if err != nil {
+			logrus.Error("Service : Error get Event Title")
+			return false, errors.New("ERROR get Event Title")
+		}
+
+		if len(eventTitle) > 0 {
+			logrus.Error("Service : Titke already registered")
+			return false, errors.New("ERROR Title already registered by another event")
+		}
 	}
 
 	//tiome
@@ -118,26 +146,26 @@ func (e *EventService) UpdateEvent(id int, newData events.Event) (*events.Event,
 		_, err := e.cloudinary.DeleteImageHelper(getPublicID)
 		if err != nil {
 			logrus.Error("Error delete image: ", err)
-			return nil, errors.New("Error delete Image")
+			return false, errors.New("Error delete Image")
 		}
 
 		secureURL, publicId, err := e.cloudinary.UploadImageHelper(newData.ImageFile)
 		if err != nil {
 			logrus.Error("Error uploading image: ", err)
-			return nil, errors.New("Error Upload Image")
+			return false, errors.New("Error Upload Image")
 		}
 
 		newData.ImageUrl = secureURL
 		newData.PublicID = publicId
 	}
 
-	result, err := e.data.UpdateEvent(id, newData)
+	_, err := e.data.UpdateEvent(id, newData)
 	if err != nil {
 		logrus.Error("Service : Error Create : ", err.Error())
-		return nil, errors.New("ERROR Create")
+		return false, errors.New("ERROR Create")
 	}
 
-	return result, nil
+	return true, nil
 }
 
 func (e *EventService) DeleteEvent(id int) (bool, error) {

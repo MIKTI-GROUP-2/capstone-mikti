@@ -131,7 +131,7 @@ func (e *EventData) GetDetail(id int) ([]events.Event, error) {
 
 }
 
-func (e *EventData) UpdateEvent(id int, newData events.Event) (*events.Event, error) {
+func (e *EventData) UpdateEvent(id int, newData events.Event) (bool, error) {
 	var qry = e.db.Table("events").
 		Where("id = ?", id).
 		Where("deleted_at is null").
@@ -152,18 +152,18 @@ func (e *EventData) UpdateEvent(id int, newData events.Event) (*events.Event, er
 
 	if err := qry.Error; err != nil {
 		logrus.Error("DATA : Error Update Event : ", err.Error())
-		return nil, err
+		return false, err
 	}
 
 	if dataCount := qry.RowsAffected; dataCount < 1 {
 		logrus.Error("DATA : No Row Affected")
-		return nil, nil
+		return false, nil
 	}
 
 	newData.StartDate = newData.ParseStartDate.Format("2006-01-02")
 	newData.EndDate = newData.ParseEndDate.Format("2006-01-02")
 
-	return &newData, nil
+	return true, nil
 }
 
 func (ed *EventData) GetPublicID(id int) (string, error) {

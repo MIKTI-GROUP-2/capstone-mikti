@@ -5,6 +5,7 @@ package main
 
 import (
 	"capstone-mikti/configs"
+	"capstone-mikti/features/categories"
 	"capstone-mikti/features/events"
 	"capstone-mikti/features/users"
 	"capstone-mikti/helper/email"
@@ -22,6 +23,10 @@ import (
 	eventHandler "capstone-mikti/features/events/handler"
 	eventService "capstone-mikti/features/events/service"
 
+	categoryData "capstone-mikti/features/categories/data"
+	categoryHandler "capstone-mikti/features/categories/handler"
+	categoryService "capstone-mikti/features/categories/service"
+
 	"capstone-mikti/server"
 
 	"github.com/google/wire"
@@ -36,6 +41,16 @@ var userSet = wire.NewSet(
 
 	userHandler.NewHandler,
 	wire.Bind(new(users.UserHandlerInterface), new(*userHandler.UserHandler)),
+)
+var categorySet = wire.NewSet(
+	categoryData.New,
+	wire.Bind(new(categories.CategoryDataInterface), new(*categoryData.CategoryData)),
+
+	categoryService.New,
+	wire.Bind(new(categories.CategoryServiceInterface), new(*categoryService.CategoryService)),
+
+	categoryHandler.NewHandler,
+	wire.Bind(new(categories.CategoryHandlerInterface), new(*categoryHandler.CategoryHandler)),
 )
 
 var eventSet = wire.NewSet(
@@ -61,6 +76,7 @@ func InitializedServer() *server.Server {
 
 		userSet,
 		eventSet,
+		categorySet,
 
 		// JANGAN DIRUBAH
 		routes.NewRoute,

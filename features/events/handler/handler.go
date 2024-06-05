@@ -73,11 +73,11 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 
 		result, err := e.service.CreateEvent(*serviceInput)
 		if err != nil {
-			if strings.Contains(err.Error(), "Title already registered by another event") {
-				return c.JSON(http.StatusBadRequest, helper.FormatResponse("Title Already Registered", nil))
+			if strings.Contains(err.Error(), "Event Create Failed, Check Category or Title") {
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse("Event Create Failed, Check Category or Title", nil))
 			}
 			c.Logger().Info("Handler : Create Failed : ", err.Error())
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Title Already Registered", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Event Create Failed", nil))
 		}
 
 		response := new(EventResponse)
@@ -191,13 +191,13 @@ func (e *EventHandler) UpdateEvent() echo.HandlerFunc {
 			serviceUpdate.ImageFile = file
 		}
 
-		result, err := e.service.UpdateEvent(int(eventID), *serviceUpdate)
+		bool, err := e.service.UpdateEvent(int(eventID), *serviceUpdate)
 		if err != nil {
 			c.Logger().Info("Handler : Update Event Error : ", err.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Update Event Error", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Success Update Event", result))
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Update Event", bool))
 
 	}
 }
