@@ -24,6 +24,45 @@ func NewHandler(s tickets.TicketServiceInterface, j jwt.JWTInterface) *TicketHan
 	}
 }
 
+// Create
+func (th *TicketHandler) Create() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Validate Admin
+		is_admin := th.jwt.ValidateRole(c)
+
+		if !is_admin {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Only admin can access this endpoint", nil))
+		}
+
+		// Get Request
+		var request = new(CreateTicketRequest)
+
+		if err := c.Bind(request); err != nil {
+			c.Logger().Error("Handler : Create Bind Error : ", err)
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid request body", nil))
+		}
+
+		// Get Entity
+		newTicket := tickets.Ticket{
+			EventID:    request.EventID,
+			Name:       request.Name,
+			TicketDate: request.TicketDate,
+			Quantity:   request.Quantity,
+			Price:      request.Price,
+		}
+
+		// Call Service
+		create, err := th.service.Create(newTicket)
+
+		if err != nil {
+			c.Logger().Error("Handler : Create Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Create process failed", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Create process success", create))
+	}
+}
+
 // GetAll
 func (th *TicketHandler) GetAll() echo.HandlerFunc {
 	return func(c echo.Context) error {

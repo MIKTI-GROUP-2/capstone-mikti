@@ -19,6 +19,31 @@ func New(db *gorm.DB) *TicketData {
 	}
 }
 
+// Create
+func (td *TicketData) Create(new_data tickets.Ticket) (*tickets.Ticket, error) {
+	// Get Model
+	ticket := new(Ticket)
+
+	ticket.EventID = new_data.EventID
+	ticket.Name = new_data.Name
+	ticket.TicketDate = new_data.ParseTicketDate
+	ticket.Quantity = new_data.Quantity
+	ticket.Price = new_data.Price
+
+	// Query
+	err := td.db.Create(ticket).Error
+
+	// Error Handling
+	if err != nil {
+		logrus.Error("DATA : Create Error : ", err.Error())
+		return nil, err
+	}
+
+	new_data.TicketDate = new_data.ParseTicketDate.Format("2006-01-02")
+
+	return &new_data, nil
+}
+
 // GetAll
 func (td *TicketData) GetAll() ([]tickets.TicketInfo, error) {
 	// Get Entity
