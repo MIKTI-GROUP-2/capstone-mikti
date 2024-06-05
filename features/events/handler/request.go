@@ -24,6 +24,4 @@ type UpdateEvent struct {
 	Highlight            string `json:"highlight" form:"highlight"`
 	ImportantInformation string `json:"important_information" form:"important_information"`
 	Address              string `json:"address"  form:"address"`
-	ImageUrl             string `json:"image_url"`
-	PublicID             string `json:"public_id"`
 }

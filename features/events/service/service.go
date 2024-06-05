@@ -84,6 +84,8 @@ func (e *EventService) GetDetail(id int) ([]events.Event, error) {
 }
 
 func (e *EventService) UpdateEvent(id int, newData events.Event) (*events.Event, error) {
+
+	//tiome
 	layout := "2006-01-02"
 
 	parseStartDate, _ := time.Parse(layout, newData.StartDate)
@@ -91,6 +93,26 @@ func (e *EventService) UpdateEvent(id int, newData events.Event) (*events.Event,
 
 	newData.ParseStartDate = parseStartDate
 	newData.ParseEndDate = parseEndDate
+
+	//image
+	getPublicID, _ := e.data.GetPublicID(id)
+
+	if newData.ImageFile != nil {
+		_, err := e.cloudinary.DeleteImageHelper(getPublicID)
+		if err != nil {
+			logrus.Error("Error delete image: ", err)
+			return nil, errors.New("Error delete Image")
+		}
+
+		secureURL, publicId, err := e.cloudinary.UploadImageHelper(newData.ImageFile)
+		if err != nil {
+			logrus.Error("Error uploading image: ", err)
+			return nil, errors.New("Error Upload Image")
+		}
+
+		newData.ImageUrl = secureURL
+		newData.PublicID = publicId
+	}
 
 	result, err := e.data.UpdateEvent(id, newData)
 	if err != nil {

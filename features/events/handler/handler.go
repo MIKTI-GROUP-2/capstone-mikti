@@ -156,7 +156,7 @@ func (e *EventHandler) UpdateEvent() echo.HandlerFunc {
 		}
 
 		var input = new(UpdateEvent)
-		if err := c.Bind(&input); err != nil {
+		if err := c.Bind(input); err != nil {
 			c.Logger().Info("Handler : Bind Input Error : ", err.Error())
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event Input", nil))
 		}
@@ -172,8 +172,23 @@ func (e *EventHandler) UpdateEvent() echo.HandlerFunc {
 		serviceUpdate.Description = input.Description
 		serviceUpdate.Highlight = input.Highlight
 		serviceUpdate.ImportantInformation = input.ImportantInformation
-		serviceUpdate.ImageUrl = input.ImageUrl
-		serviceUpdate.PublicID = input.PublicID
+
+		//image
+		fileHeader, err := c.FormFile("image_file")
+		if fileHeader != nil {
+			if err != nil {
+				logrus.Error("Error receive image file: ", err)
+				return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Error Receive Image", nil))
+			}
+
+			file, err := fileHeader.Open()
+			if err != nil {
+				logrus.Error("Error opening file: ", err)
+				return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Error opening file", nil))
+			}
+
+			serviceUpdate.ImageFile = file
+		}
 
 		result, err := e.service.UpdateEvent(int(eventID), *serviceUpdate)
 		if err != nil {
