@@ -35,6 +35,9 @@ services:
       - REFSECRET=${REFSECRET}
       - EMAIL=${EMAIL_SENDER}
       - PASSWORD=${EMAIL_PASSWORD_SENDER}
+      - CLOUDURL=${CLOUDINARY_URL}
+      - MT_SERVER_KEY=${MT_SERVER_KEY}
+      - MT_ENV=${MT_ENV}
     ports:
       - '8888:8888'
     networks:

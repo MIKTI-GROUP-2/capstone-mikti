@@ -23,16 +23,18 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, ch ca
 	group.POST("/forget-password", uh.ForgetPasswordWeb())
 	group.POST("/reset-password", uh.ResetPassword())
 	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
+	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
 
 	// Route Profile
 	group.GET("/profile", uh.Profile(), JwtAuth)
 	group.POST("/profile/update", uh.UpdateProfile(), JwtAuth)
 
 	//Route Event Category
-	group.GET("/categories", ch.GetCategories())
-	group.GET("/category/:id", ch.GetCategory())
-	group.POST("/category", ch.CreateCategory())
-	group.PUT("/category/:id", ch.UpdateCategory())
+	group.GET("/categories", ch.GetCategories(), JwtAuth)
+	group.GET("/category/:id", ch.GetCategory(), JwtAuth)
+	group.POST("/category", ch.CreateCategory(), JwtAuth)
+	group.PUT("/category/:id", ch.UpdateCategory(), JwtAuth)
+
 	// Route Group event
 	groupEvent := group.Group("/event")
 	groupEvent.GET("", uh.Profile(), JwtAuth)
