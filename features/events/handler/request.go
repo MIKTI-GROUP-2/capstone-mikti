@@ -1,6 +1,6 @@
 package handler
 
-type EventInput struct {
+type EventInputRequest struct {
 	CategoryID           int    `json:"category_id" form:"category_id" validate:"required"`
 	EventTitle           string `json:"event_title" form:"event_title" validate:"required"`
 	StartDate            string `json:"start_date" form:"start_date" validate:"required"`
@@ -13,7 +13,7 @@ type EventInput struct {
 	Address              string `json:"address"  form:"address" validate:"required"`
 }
 
-type UpdateEvent struct {
+type UpdateEventRequest struct {
 	CategoryID           int    `json:"category_id" form:"category_id"`
 	EventTitle           string `json:"event_title" form:"event_title"`
 	StartDate            string `json:"start_date" form:"start_date"`

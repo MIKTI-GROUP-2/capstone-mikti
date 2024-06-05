@@ -31,7 +31,7 @@ func (e *EventHandler) CreateEvent() echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Only Admin can access this endpoint", nil))
 		}
 
-		var input = new(EventInput)
+		var input = new(EventInputRequest)
 
 		if err := c.Bind(input); err != nil {
 			c.Logger().Info("Handler : Bind Input Error : ", err.Error())
@@ -155,8 +155,9 @@ func (e *EventHandler) UpdateEvent() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event ID", nil))
 		}
 
-		var input = new(UpdateEvent)
+		var input = new(UpdateEventRequest)
 		if err := c.Bind(input); err != nil {
+
 			c.Logger().Info("Handler : Bind Input Error : ", err.Error())
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Event Input", nil))
 		}

@@ -26,11 +26,16 @@ func New(d events.EventDataInterface, j jwt.JWTInterface, c cloudinary.Cloudinar
 
 func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) {
 
-	_, err := e.data.GetByTitle(newData.EventTitle)
+	eventTitle, err := e.data.GetByTitle(newData.EventTitle)
 
 	if err != nil {
+		logrus.Error("Service : Error get title")
+		return nil, errors.New("ERROR get title")
+	}
+
+	if len(eventTitle) > 0 {
 		logrus.Error("Service : Titke already registered")
-		return nil, errors.New("ERROR Title already registered by another user")
+		return nil, errors.New("ERROR Title already registered by another event")
 	}
 
 	secureURL, publicId, err := e.cloudinary.UploadImageHelper(newData.ImageFile)
@@ -84,6 +89,18 @@ func (e *EventService) GetDetail(id int) ([]events.Event, error) {
 }
 
 func (e *EventService) UpdateEvent(id int, newData events.Event) (*events.Event, error) {
+
+	eventTitle, err := e.data.GetByTitle(newData.EventTitle)
+
+	if err != nil {
+		logrus.Error("Service : Error get Event Title")
+		return nil, errors.New("ERROR get Event Title")
+	}
+
+	if len(eventTitle) > 0 {
+		logrus.Error("Service : Titke already registered")
+		return nil, errors.New("ERROR Title already registered by another event")
+	}
 
 	//tiome
 	layout := "2006-01-02"
