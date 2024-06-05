@@ -25,6 +25,7 @@ func New(d events.EventDataInterface, j jwt.JWTInterface, c cloudinary.Cloudinar
 }
 
 func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) {
+
 	_, err := e.data.GetByTitle(newData.EventTitle)
 
 	if err != nil {
@@ -38,6 +39,9 @@ func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) 
 		return nil, errors.New("Error Upload Image")
 	}
 
+	newData.ImageUrl = secureURL
+	newData.PublicID = publicId
+
 	//waktu
 	layout := "2006-01-02"
 
@@ -46,9 +50,6 @@ func (e *EventService) CreateEvent(newData events.Event) (*events.Event, error) 
 
 	newData.ParseStartDate = parseStartDate
 	newData.ParseEndDate = parseEndDate
-
-	newData.ImageUrl = secureURL
-	newData.PublicID = publicId
 
 	result, err := e.data.CreateEvent(newData)
 	if err != nil {
@@ -101,11 +102,26 @@ func (e *EventService) UpdateEvent(id int, newData events.Event) (*events.Event,
 }
 
 func (e *EventService) DeleteEvent(id int) (bool, error) {
+
+	publicID, err := e.data.GetPublicID(id)
+
+	if err != nil {
+		logrus.Error("Service : Error Get Public Id : ", err.Error())
+		return false, errors.New("ERROR Get Public Id")
+	}
+
+	_, err = e.cloudinary.DeleteImageHelper(publicID)
+
+	if err != nil {
+		logrus.Error("Service : Error Delete Image : ", err.Error())
+		return false, errors.New("ERROR  Delete Image")
+	}
+
 	result, err := e.data.DeleteEvent(id)
 
 	if err != nil {
-		logrus.Error("Service : Error Create : ", err.Error())
-		return false, errors.New("ERROR Create")
+		logrus.Error("Service : Error Delete : ", err.Error())
+		return false, errors.New("ERROR Delete")
 	}
 
 	return result, nil

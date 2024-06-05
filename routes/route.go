@@ -31,11 +31,11 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 
 	// Route Group event
 	groupEvent := group.Group("/event")
-	groupEvent.POST("/create", eh.CreateEvent(), JwtAuth)
 	groupEvent.GET("", eh.GetAll())
+	groupEvent.POST("", eh.CreateEvent(), JwtAuth)
 	groupEvent.GET("/:id", eh.GetDetail())
-	groupEvent.PUT("/:id/update", eh.UpdateEvent(), JwtAuth)
-	groupEvent.DELETE("/:id/delete", eh.DeleteEvent(), JwtAuth)
+	groupEvent.PUT("/:id", eh.UpdateEvent(), JwtAuth)
+	groupEvent.DELETE("/:id", eh.DeleteEvent(), JwtAuth)
 
 	return e
 }

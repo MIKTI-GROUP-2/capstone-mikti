@@ -166,6 +166,19 @@ func (e *EventData) UpdateEvent(id int, newData events.Event) (*events.Event, er
 	return &newData, nil
 }
 
+func (ed *EventData) GetPublicID(id int) (string, error) {
+	var dbData events.PublicID
+
+	var qry = ed.db.Table("events").Select("public_id").Where("id = ?", id).Scan(&dbData)
+
+	if err := qry.Error; err != nil {
+		logrus.Error("DATA : Error Get By ID : ", err.Error())
+		return "", err
+	}
+
+	return dbData.PublicID, nil
+}
+
 func (e *EventData) DeleteEvent(id int) (bool, error) {
 
 	var event Event

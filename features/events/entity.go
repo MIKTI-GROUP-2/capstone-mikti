@@ -10,6 +10,10 @@ import (
 type TitleEvent struct {
 	EventTitle string `json:"event_title"`
 }
+
+type PublicID struct {
+	PublicID string `json:"public_id"`
+}
 type AllEvent struct {
 	ID            uint   `json:"id"`
 	CategoryID    int    `json:"category_id"`
@@ -64,4 +68,5 @@ type EventDataInterface interface {
 	GetDetail(id int) ([]Event, error)
 	UpdateEvent(id int, newData Event) (*Event, error)
 	DeleteEvent(id int) (bool, error)
+	GetPublicID(id int) (string, error)
 }
