@@ -86,7 +86,7 @@ func (wd *WishlistData) GetAll(user_id int) ([]wishlists.WishlistInfo, error) {
 	err := wd.db.Table("wishlists").
 		Select(`
 			wishlists.id,
-			events.id AS event_id,
+			wishlists.event_id,
 			events.event_title,
 			categories.id AS category_id,
 			categories.category_name,
@@ -123,7 +123,7 @@ func (wd *WishlistData) GetByID(user_id, id int) ([]wishlists.WishlistInfo, erro
 	err := wd.db.Table("wishlists").
 		Select(`
 			wishlists.id,
-			events.id AS event_id,
+			wishlists.event_id,,
 			events.event_title,
 			categories.id AS category_id,
 			categories.category_name,
