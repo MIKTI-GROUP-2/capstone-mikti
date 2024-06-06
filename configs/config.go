@@ -12,16 +12,19 @@ import (
 )
 
 type ProgrammingConfig struct {
-	Server     int
-	DBPort     int
-	DBHost     string
-	DBName     string
-	DBUser     string
-	DBPassword string
-	Email      string
-	Password   string
-	Secret     string
-	RefSecret  string
+	Server            int
+	DBPort            int
+	DBHost            string
+	DBName            string
+	DBUser            string
+	DBPassword        string
+	Email             string
+	Password          string
+	Secret            string
+	RefSecret         string
+	Cloud_URL         string
+	MidtransServerKey string
+	MidtransEnv       string
 }
 
 func InitConfig() *ProgrammingConfig {
@@ -136,6 +139,27 @@ func loadConfig() (*ProgrammingConfig, error) {
 	} else {
 		permit = false
 		errorLoad = errors.New("REFSECRET UNDEFINED")
+	}
+
+	if val, found := os.LookupEnv("CLOUDURL"); found {
+		res.Cloud_URL = val
+	} else {
+		permit = false
+		errorLoad = errors.New("CLOUDURL UNDEFINED")
+	}
+
+	if val, found := os.LookupEnv("MT_SERVER_KEY"); found {
+		res.MidtransServerKey = val
+	} else {
+		permit = false
+		errorLoad = errors.New("MT_SERVER_KEY UNDEFINED")
+	}
+
+	if val, found := os.LookupEnv("MT_ENV"); found {
+		res.MidtransEnv = val
+	} else {
+		permit = false
+		errorLoad = errors.New("MT_ENV UNDEFINED")
 	}
 
 	if !permit {
