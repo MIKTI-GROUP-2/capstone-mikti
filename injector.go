@@ -8,6 +8,7 @@ import (
 	"capstone-mikti/features/categories"
 	"capstone-mikti/features/events"
 	"capstone-mikti/features/users"
+	"capstone-mikti/features/vouchers"
 	"capstone-mikti/helper/email"
 	"capstone-mikti/helper/enkrip"
 	"capstone-mikti/helper/jwt"
@@ -26,6 +27,10 @@ import (
 	categoryData "capstone-mikti/features/categories/data"
 	categoryHandler "capstone-mikti/features/categories/handler"
 	categoryService "capstone-mikti/features/categories/service"
+
+	voucherData "capstone-mikti/features/vouchers/data"
+	voucherHandler "capstone-mikti/features/vouchers/handler"
+	voucherService "capstone-mikti/features/vouchers/service"
 
 	"capstone-mikti/server"
 
@@ -64,6 +69,17 @@ var eventSet = wire.NewSet(
 	wire.Bind(new(events.EventHandlerInterface), new(*eventHandler.EventHandler)),
 )
 
+var voucherSet = wire.NewSet(
+	voucherData.New,
+	wire.Bind(new(vouchers.VoucherDataInterface), new(*voucherData.VoucherData)),
+
+	voucherService.New,
+	wire.Bind(new(vouchers.VoucherServiceInterface), new(*voucherService.VoucherService)),
+
+	voucherHandler.NewHandler,
+	wire.Bind(new(vouchers.VoucherHandlerInterface), new(*voucherHandler.VoucherHandler)),
+)
+
 func InitializedServer() *server.Server {
 	wire.Build(
 		configs.InitConfig,
@@ -77,6 +93,7 @@ func InitializedServer() *server.Server {
 		userSet,
 		eventSet,
 		categorySet,
+		voucherSet,
 
 		// JANGAN DIRUBAH
 		routes.NewRoute,

@@ -4,7 +4,7 @@ import (
 	"capstone-mikti/features/vouchers"
 	"capstone-mikti/helper"
 	"net/http"
-	"strings"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
@@ -23,8 +23,9 @@ func NewHandler(s vouchers.VoucherServiceInterface) *VoucherHandler {
 // CreateVoucher handles the creation of a new voucher.
 func (v *VoucherHandler) CreateVoucher() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var input = new(CreateVoucherInput)
-		if err := c.Bind(&input); err != nil {
+		var input = new(InputRequest)
+		if err := c.Bind(input); err != nil {
+			logrus.Error(err.Error())
 			c.Logger().Info("Handler : Bind Input Error : ", err.Error())
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Voucher Input", nil))
 		}
@@ -36,10 +37,11 @@ func (v *VoucherHandler) CreateVoucher() echo.HandlerFunc {
 
 		var serviceInput = new(vouchers.Voucher)
 		serviceInput.Code = input.Code
-		serviceInput.Discount = input.Discount
-		serviceInput.ExpiryDate = input.ExpiryDate
-		serviceInput.EventID = input.EventID
-		serviceInput.Status = input.Status
+		serviceInput.Name = input.Name
+		serviceInput.Quantity = input.Quantity
+		serviceInput.Price = input.Price
+		serviceInput.ExpiryDate = input.ExpiredDate
+		serviceInput.EventID = uint(input.EventID)
 
 		result, err := v.service.CreateVoucher(*serviceInput)
 		if err != nil {
@@ -47,12 +49,13 @@ func (v *VoucherHandler) CreateVoucher() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Create Voucher Process Failed", nil))
 		}
 
-		var response = new(VoucherResponse)
-		response.ID = result.ID
+		var response = new(InputResponse)
 		response.Code = result.Code
-		response.Discount = result.Discount
+		response.Name = result.Name
+		response.Quantity = result.Quantity
+		response.Price = result.Price
 		response.ExpiryDate = result.ExpiryDate
-		response.EventID = result.EventID
+		response.EventID = uint(result.EventID)
 		response.Status = result.Status
 
 		return c.JSON(http.StatusCreated, helper.FormatResponse("Success Create Voucher", response))
@@ -60,7 +63,7 @@ func (v *VoucherHandler) CreateVoucher() echo.HandlerFunc {
 }
 
 // GetVoucherByID handles retrieving a voucher by its ID.
-func (v *VoucherHandler) GetVoucherByID() echo.HandlerFunc {
+func (v *VoucherHandler) GetVoucher() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
 		voucherID, err := strconv.Atoi(id)
@@ -69,21 +72,26 @@ func (v *VoucherHandler) GetVoucherByID() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Voucher ID", nil))
 		}
 
-		result, err := v.service.GetVoucherByID(voucherID)
+		result, err := v.service.GetVoucher(voucherID)
 		if err != nil {
 			c.Logger().Info("Handler : GetVoucherByID Failed : ", err.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get Voucher Process Failed", nil))
 		}
 
-		var response = new(VoucherResponse)
-		response.ID = result.ID
-		response.Code = result.Code
-		response.Discount = result.Discount
-		response.ExpiryDate = result.ExpiryDate
-		response.EventID = result.EventID
-		response.Status = result.Status
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Voucher", result))
+	}
+}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Voucher", response))
+// GetVouchers handles retrieving a voucher by its ID.
+func (v *VoucherHandler) GetVouchers() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		result, err := v.service.GetVouchers()
+		if err != nil {
+			c.Logger().Info("Handler : Get All Voucher Failed : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get All Voucher Process Failed", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Voucher", result))
 	}
 }
 
@@ -98,15 +106,7 @@ func (v *VoucherHandler) GetVoucherByCode() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get Voucher Process Failed", nil))
 		}
 
-		var response = new(VoucherResponse)
-		response.ID = result.ID
-		response.Code = result.Code
-		response.Discount = result.Discount
-		response.ExpiryDate = result.ExpiryDate
-		response.EventID = result.EventID
-		response.Status = result.Status
-
-		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Voucher", response))
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Voucher", result))
 	}
 }
 
@@ -120,7 +120,7 @@ func (v *VoucherHandler) UpdateVoucher() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Voucher ID", nil))
 		}
 
-		var input = new(UpdateVoucherInput)
+		var input = new(UpdateRequest)
 		if err := c.Bind(&input); err != nil {
 			c.Logger().Info("Handler : Bind Input Error : ", err.Error())
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Voucher Input", nil))
@@ -133,28 +133,24 @@ func (v *VoucherHandler) UpdateVoucher() echo.HandlerFunc {
 
 		var serviceUpdate = new(vouchers.UpdateVoucher)
 		serviceUpdate.Code = input.Code
-		serviceUpdate.Discount = input.Discount
-		serviceUpdate.ExpiryDate = input.ExpiryDate
-		serviceUpdate.EventID = input.EventID
-		serviceUpdate.Status = input.Status
+		serviceUpdate.Name = input.Name
+		serviceUpdate.Quantity = input.Quantity
+		serviceUpdate.Price = input.Price
+		serviceUpdate.ExpiryDate = input.ExpiredDate
+		serviceUpdate.EventID = uint(input.EventID)
 
-		success, err := v.service.UpdateVoucher(voucherID, *serviceUpdate)
+		res, err := v.service.UpdateVoucher(voucherID, *serviceUpdate)
 		if err != nil {
 			c.Logger().Info("Handler : UpdateVoucher Failed : ", err.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Update Voucher Process Failed", nil))
 		}
 
-		if !success {
-			c.Logger().Info("Handler : UpdateVoucher No Rows Affected")
-			return c.JSON(http.StatusNotFound, helper.FormatResponse("Voucher Not Found", nil))
-		}
-
-		return c.JSON(http.StatusOK, helper.FormatResponse("Success Update Voucher", nil))
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Update Voucher", res))
 	}
 }
 
-// DeleteVoucher handles deleting an existing voucher.
-func (v *VoucherHandler) DeleteVoucher() echo.HandlerFunc {
+// ActivateVoucher handles deleting an existing voucher.
+func (v *VoucherHandler) ActivateVoucher() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
 		voucherID, err := strconv.Atoi(id)
@@ -163,40 +159,32 @@ func (v *VoucherHandler) DeleteVoucher() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Voucher ID", nil))
 		}
 
-		err = v.service.DeleteVoucher(voucherID)
+		res, err := v.service.ActivateVoucher(voucherID)
 		if err != nil {
-			c.Logger().Info("Handler : DeleteVoucher Failed : ", err.Error())
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete Voucher Process Failed", nil))
+			c.Logger().Info("Handler : ActivateVoucher Failed : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Activate Voucher Process Failed", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Success Delete Voucher", nil))
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Activate Voucher", res))
 	}
 }
 
-// VoucherResponse represents the response structure for voucher operations.
-type VoucherResponse struct {
-	ID         int       json:"id"
-	Code       string    json:"code"
-	Discount   float64   json:"discount"
-	ExpiryDate time.Time json:"expiry_date"
-	EventID    int       json:"event_id"
-	Status     bool      json:"status"
-}
+// DeactivateVoucher handles deleting an existing voucher.
+func (v *VoucherHandler) DeactivateVoucher() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id := c.Param("id")
+		voucherID, err := strconv.Atoi(id)
+		if err != nil {
+			c.Logger().Info("Handler : Invalid ID : ", err.Error())
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Voucher ID", nil))
+		}
 
-// CreateVoucherInput represents the input structure for creating a voucher.
-type CreateVoucherInput struct {
-	Code       string    json:"code" validate:"required"
-	Discount   float64   json:"discount" validate:"required"
-	ExpiryDate time.Time json:"expiry_date" validate:"required"
-	EventID    int       json:"event_id" validate:"required"
-	Status     bool      json:"status" validate:"required"
-}
+		res, err := v.service.DeactivateVoucher(voucherID)
+		if err != nil {
+			c.Logger().Info("Handler : DeactivateVoucher Failed : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Deactivate Voucher Process Failed", nil))
+		}
 
-// UpdateVoucherInput represents the input structure for updating a voucher.
-type UpdateVoucherInput struct {
-	Code       string    json:"code" validate:"required"
-	Discount   float64   json:"discount" validate:"required"
-	ExpiryDate time.Time json:"expiry_date" validate:"required"
-	EventID    int       json:"event_id" validate:"required"
-	Status     bool      json:"status" validate:"required"
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Deactivate Voucher", res))
+	}
 }

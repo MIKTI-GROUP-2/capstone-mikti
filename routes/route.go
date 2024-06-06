@@ -6,12 +6,13 @@ import (
 	"capstone-mikti/features/categories"
 	events "capstone-mikti/features/events"
 	"capstone-mikti/features/users"
+	"capstone-mikti/features/vouchers"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
-func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface) *echo.Echo {
+func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, vh vouchers.VoucherHandlerInterface) *echo.Echo {
 	e := echo.New()
 
 	//Akses khusus harus login dlu
@@ -32,7 +33,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	group.POST("/profile/update", uh.UpdateProfile(), JwtAuth)
 
 	//Route Event Category
-	group.GET("/categories", ch.GetCategories(), JwtAuth)
+	group.GET("/category", ch.GetCategories(), JwtAuth)
 	group.GET("/category/:id", ch.GetCategory(), JwtAuth)
 	group.POST("/category", ch.CreateCategory(), JwtAuth)
 	group.PUT("/category/:id", ch.UpdateCategory(), JwtAuth)
@@ -44,6 +45,15 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupEvent.GET("/:id", eh.GetDetail())
 	groupEvent.PUT("/:id", eh.UpdateEvent(), JwtAuth)
 	groupEvent.DELETE("/:id", eh.DeleteEvent(), JwtAuth)
+
+	// Route Group Voucher
+	groupVoucher := group.Group("/voucher")
+	groupVoucher.GET("", vh.GetVouchers())
+	groupVoucher.GET("/:id", vh.GetVoucher())
+	groupVoucher.POST("", vh.CreateVoucher(), JwtAuth)
+	groupVoucher.PUT("/:id", vh.UpdateVoucher(), JwtAuth)
+	groupVoucher.GET("/:id/activate", vh.ActivateVoucher(), JwtAuth)
+	groupVoucher.GET("/:id/deactivate", vh.DeactivateVoucher(), JwtAuth)
 
 	return e
 }
