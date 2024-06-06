@@ -19,6 +19,25 @@ func New(db *gorm.DB) *WishlistData {
 	}
 }
 
+// CheckEvent
+func (wd *WishlistData) CheckEvent(event_id int) ([]wishlists.Event, error) {
+	// Get Entity
+	var event = []wishlists.Event{}
+
+	// Query
+	err := wd.db.Table("events").
+		Where("events.id = ?", event_id).
+		Find(&event).Error
+
+	// Error Handling
+	if err != nil {
+		logrus.Error("DATA : CheckEvent Error : ", err.Error())
+		return nil, err
+	}
+
+	return event, nil
+}
+
 // CheckUnique
 func (wd *WishlistData) CheckUnique(user_id, event_id int) ([]wishlists.Wishlist, error) {
 	// Get Entity
@@ -26,7 +45,6 @@ func (wd *WishlistData) CheckUnique(user_id, event_id int) ([]wishlists.Wishlist
 
 	// Query
 	err := wd.db.Table("wishlists").
-		Select("*").
 		Where("wishlists.user_id = ? AND wishlists.event_id = ?", user_id, event_id).
 		Find(&wishlist).Error
 
@@ -66,8 +84,24 @@ func (wd *WishlistData) GetAll(user_id int) ([]wishlists.WishlistInfo, error) {
 
 	// Query
 	err := wd.db.Table("wishlists").
-		Select("wishlists.id, wishlists.user_id, wishlists.event_id, events.event_title").
+		Select(`
+			wishlists.id,
+			events.id AS event_id,
+			events.event_title,
+			categories.id AS category_id,
+			categories.category_name,
+			events.start_date,
+			events.end_date,
+			events.city,
+			events.starting_price,
+			events.description,
+			events.highlight,
+			events.important_information,
+			events.address,
+			events.image_url,
+			events.public_id`).
 		Joins("JOIN events ON events.id = wishlists.event_id").
+		Joins("JOIN categories ON categories.id = events.category_id").
 		Where("wishlists.user_id = ?", user_id).
 		Find(&wishlist).Error
 
@@ -87,8 +121,24 @@ func (wd *WishlistData) GetByID(user_id, id int) ([]wishlists.WishlistInfo, erro
 
 	// Query
 	err := wd.db.Table("wishlists").
-		Select("wishlists.id, wishlists.user_id, wishlists.event_id, events.event_title").
+		Select(`
+			wishlists.id,
+			events.id AS event_id,
+			events.event_title,
+			categories.id AS category_id,
+			categories.category_name,
+			events.start_date,
+			events.end_date,
+			events.city,
+			events.starting_price,
+			events.description,
+			events.highlight,
+			events.important_information,
+			events.address,
+			events.image_url,
+			events.public_id`).
 		Joins("JOIN events ON events.id = wishlists.event_id").
+		Joins("JOIN categories ON categories.id = events.category_id").
 		Where("wishlists.user_id = ? AND wishlists.id = ?", user_id, id).
 		Find(&wishlist).Error
 
