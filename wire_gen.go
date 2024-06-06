@@ -8,19 +8,28 @@ package main
 
 import (
 	"capstone-mikti/configs"
+	"capstone-mikti/features/categories"
+	data3 "capstone-mikti/features/categories/data"
+	handler3 "capstone-mikti/features/categories/handler"
+	service3 "capstone-mikti/features/categories/service"
+	"capstone-mikti/features/events"
+	data2 "capstone-mikti/features/events/data"
+	handler2 "capstone-mikti/features/events/handler"
+	service2 "capstone-mikti/features/events/service"
 	"capstone-mikti/features/users"
 	"capstone-mikti/features/users/data"
 	"capstone-mikti/features/users/handler"
 	"capstone-mikti/features/users/service"
 	"capstone-mikti/features/wishlists"
-	data2 "capstone-mikti/features/wishlists/data"
-	handler2 "capstone-mikti/features/wishlists/handler"
-	service2 "capstone-mikti/features/wishlists/service"
+	data4 "capstone-mikti/features/wishlists/data"
+	handler4 "capstone-mikti/features/wishlists/handler"
+	service4 "capstone-mikti/features/wishlists/service"
 	"capstone-mikti/helper/email"
 	"capstone-mikti/helper/enkrip"
 	"capstone-mikti/helper/jwt"
 	"capstone-mikti/routes"
 	"capstone-mikti/server"
+	"capstone-mikti/utils/cloudinary"
 	"capstone-mikti/utils/database"
 	"github.com/google/wire"
 )
@@ -36,10 +45,17 @@ func InitializedServer() *server.Server {
 	emailInterface := email.New(programmingConfig)
 	userService := service.New(userData, jwtInterface, hashInterface, emailInterface)
 	userHandler := handler.NewHandler(userService, jwtInterface)
-	wishlistData := data2.New(db)
-	wishlistService := service2.New(wishlistData)
-	wishlistHandler := handler2.NewHandler(wishlistService, jwtInterface)
-	echo := routes.NewRoute(programmingConfig, userHandler, wishlistHandler)
+	eventData := data2.New(db)
+	cloudinaryInterface := cloudinary.InitCloud(programmingConfig)
+	categoryData := data3.New(db)
+	eventService := service2.New(eventData, jwtInterface, cloudinaryInterface, categoryData)
+	eventHandler := handler2.NewHandler(eventService, jwtInterface)
+	categoryService := service3.New(categoryData)
+	categoryHandler := handler3.NewHandler(categoryService, jwtInterface)
+	wishlistData := data4.New(db)
+	wishlistService := service4.New(wishlistData)
+	wishlistHandler := handler4.NewHandler(wishlistService, jwtInterface)
+	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, wishlistHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
 	return serverServer
 }
@@ -48,4 +64,8 @@ func InitializedServer() *server.Server {
 
 var userSet = wire.NewSet(data.New, wire.Bind(new(users.UserDataInterface), new(*data.UserData)), service.New, wire.Bind(new(users.UserServiceInterface), new(*service.UserService)), handler.NewHandler, wire.Bind(new(users.UserHandlerInterface), new(*handler.UserHandler)))
 
-var wishlistSet = wire.NewSet(data2.New, wire.Bind(new(wishlists.WishlistDataInterface), new(*data2.WishlistData)), service2.New, wire.Bind(new(wishlists.WishlistServiceInterface), new(*service2.WishlistService)), handler2.NewHandler, wire.Bind(new(wishlists.WishlistHandlerInterface), new(*handler2.WishlistHandler)))
+var categorySet = wire.NewSet(data3.New, wire.Bind(new(categories.CategoryDataInterface), new(*data3.CategoryData)), service3.New, wire.Bind(new(categories.CategoryServiceInterface), new(*service3.CategoryService)), handler3.NewHandler, wire.Bind(new(categories.CategoryHandlerInterface), new(*handler3.CategoryHandler)))
+
+var eventSet = wire.NewSet(data2.New, wire.Bind(new(events.EventDataInterface), new(*data2.EventData)), service2.New, wire.Bind(new(events.EventServiceInterface), new(*service2.EventService)), handler2.NewHandler, wire.Bind(new(events.EventHandlerInterface), new(*handler2.EventHandler)))
+
+var wishlistSet = wire.NewSet(data4.New, wire.Bind(new(wishlists.WishlistDataInterface), new(*data4.WishlistData)), service4.New, wire.Bind(new(wishlists.WishlistServiceInterface), new(*service4.WishlistService)), handler4.NewHandler, wire.Bind(new(wishlists.WishlistHandlerInterface), new(*handler4.WishlistHandler)))
