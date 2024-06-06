@@ -5,6 +5,7 @@ import (
 	dataEvent "capstone-mikti/features/events/data"
 	dataUser "capstone-mikti/features/users/data"
 	dataVoucher "capstone-mikti/features/vouchers/data"
+	dataWishlist "capstone-mikti/features/wishlists/data"
 
 	"gorm.io/gorm"
 )
@@ -15,4 +16,5 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(dataCategory.Category{})
 	db.AutoMigrate(dataEvent.Event{})
 	db.AutoMigrate(dataVoucher.Voucher{})
+	db.AutoMigrate(dataWishlist.Wishlist{})
 }

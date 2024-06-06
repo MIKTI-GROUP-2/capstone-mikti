@@ -21,9 +21,13 @@ import (
 	"capstone-mikti/features/users/handler"
 	"capstone-mikti/features/users/service"
 	"capstone-mikti/features/vouchers"
-	data4 "capstone-mikti/features/vouchers/data"
-	handler4 "capstone-mikti/features/vouchers/handler"
-	service4 "capstone-mikti/features/vouchers/service"
+	data5 "capstone-mikti/features/vouchers/data"
+	handler5 "capstone-mikti/features/vouchers/handler"
+	service5 "capstone-mikti/features/vouchers/service"
+	"capstone-mikti/features/wishlists"
+	data4 "capstone-mikti/features/wishlists/data"
+	handler4 "capstone-mikti/features/wishlists/handler"
+	service4 "capstone-mikti/features/wishlists/service"
 	"capstone-mikti/helper/email"
 	"capstone-mikti/helper/enkrip"
 	"capstone-mikti/helper/jwt"
@@ -52,10 +56,13 @@ func InitializedServer() *server.Server {
 	eventHandler := handler2.NewHandler(eventService, jwtInterface)
 	categoryService := service3.New(categoryData)
 	categoryHandler := handler3.NewHandler(categoryService, jwtInterface)
-	voucherData := data4.New(db)
-	voucherService := service4.New(voucherData)
-	voucherHandler := handler4.NewHandler(voucherService)
-	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, voucherHandler)
+	wishlistData := data4.New(db)
+	wishlistService := service4.New(wishlistData)
+	wishlistHandler := handler4.NewHandler(wishlistService, jwtInterface)
+	voucherData := data5.New(db)
+	voucherService := service5.New(voucherData)
+	voucherHandler := handler5.NewHandler(voucherService)
+	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, wishlistHandler, voucherHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
 	return serverServer
 }
@@ -68,4 +75,6 @@ var categorySet = wire.NewSet(data3.New, wire.Bind(new(categories.CategoryDataIn
 
 var eventSet = wire.NewSet(data2.New, wire.Bind(new(events.EventDataInterface), new(*data2.EventData)), service2.New, wire.Bind(new(events.EventServiceInterface), new(*service2.EventService)), handler2.NewHandler, wire.Bind(new(events.EventHandlerInterface), new(*handler2.EventHandler)))
 
-var voucherSet = wire.NewSet(data4.New, wire.Bind(new(vouchers.VoucherDataInterface), new(*data4.VoucherData)), service4.New, wire.Bind(new(vouchers.VoucherServiceInterface), new(*service4.VoucherService)), handler4.NewHandler, wire.Bind(new(vouchers.VoucherHandlerInterface), new(*handler4.VoucherHandler)))
+var voucherSet = wire.NewSet(data5.New, wire.Bind(new(vouchers.VoucherDataInterface), new(*data5.VoucherData)), service5.New, wire.Bind(new(vouchers.VoucherServiceInterface), new(*service5.VoucherService)), handler5.NewHandler, wire.Bind(new(vouchers.VoucherHandlerInterface), new(*handler5.VoucherHandler)))
+
+var wishlistSet = wire.NewSet(data4.New, wire.Bind(new(wishlists.WishlistDataInterface), new(*data4.WishlistData)), service4.New, wire.Bind(new(wishlists.WishlistServiceInterface), new(*service4.WishlistService)), handler4.NewHandler, wire.Bind(new(wishlists.WishlistHandlerInterface), new(*handler4.WishlistHandler)))

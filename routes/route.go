@@ -7,12 +7,13 @@ import (
 	events "capstone-mikti/features/events"
 	"capstone-mikti/features/users"
 	"capstone-mikti/features/vouchers"
+	"capstone-mikti/features/wishlists"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
-func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, vh vouchers.VoucherHandlerInterface) *echo.Echo {
+func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, wh wishlists.WishlistHandlerInterface, vh vouchers.VoucherHandlerInterface) *echo.Echo {
 	e := echo.New()
 
 	//Akses khusus harus login dlu
@@ -54,6 +55,13 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupVoucher.PUT("/:id", vh.UpdateVoucher(), JwtAuth)
 	groupVoucher.GET("/:id/activate", vh.ActivateVoucher(), JwtAuth)
 	groupVoucher.GET("/:id/deactivate", vh.DeactivateVoucher(), JwtAuth)
+
+	// Route Wishlist
+	groupWishlist := group.Group("/wishlist")
+	groupWishlist.POST("", wh.Create(), JwtAuth)
+	groupWishlist.GET("", wh.GetAll(), JwtAuth)
+	groupWishlist.GET("/:id", wh.GetByID(), JwtAuth)
+	groupWishlist.DELETE("/:event_id", wh.Delete(), JwtAuth)
 
 	return e
 }
