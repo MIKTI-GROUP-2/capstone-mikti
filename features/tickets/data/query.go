@@ -19,6 +19,25 @@ func New(db *gorm.DB) *TicketData {
 	}
 }
 
+// CheckEvent
+func (td *TicketData) CheckEvent(event_id int) ([]tickets.Event, error) {
+	// Get Entity
+	var event = []tickets.Event{}
+
+	// Query
+	err := td.db.Table("events").
+		Where("events.id = ?", event_id).
+		Find(&event).Error
+
+	// Error Handling
+	if err != nil {
+		logrus.Error("DATA : CheckEvent Error : ", err.Error())
+		return nil, err
+	}
+
+	return event, nil
+}
+
 // Create
 func (td *TicketData) Create(new_data tickets.Ticket) (*tickets.Ticket, error) {
 	// Get Model

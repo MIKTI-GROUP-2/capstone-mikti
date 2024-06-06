@@ -6,6 +6,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Entity for CheckEvent
+type Event struct {
+	ID         uint   `json:"event_id"`
+	EventTitle string `json:"event_title"`
+}
+
 // Entity for Create, Update
 type Ticket struct {
 	ID              uint      `json:"id"`
@@ -33,6 +39,7 @@ type TicketHandlerInterface interface {
 	Create() echo.HandlerFunc
 	GetAll() echo.HandlerFunc
 	GetByID() echo.HandlerFunc
+	// Update() echo.HandlerFunc
 }
 
 // Service
@@ -40,11 +47,14 @@ type TicketServiceInterface interface {
 	Create(new_data Ticket) (*Ticket, error)
 	GetAll() ([]TicketInfo, error)
 	GetByID(id int) ([]TicketInfo, error)
+	// Update(id int, new_data Ticket) (*Ticket, error)
 }
 
 // Repository
 type TicketDataInterface interface {
+	CheckEvent(event_id int) ([]Event, error)
 	Create(new_data Ticket) (*Ticket, error)
 	GetAll() ([]TicketInfo, error)
 	GetByID(id int) ([]TicketInfo, error)
+	// Update(id int, new_data Ticket) (*Ticket, error)
 }

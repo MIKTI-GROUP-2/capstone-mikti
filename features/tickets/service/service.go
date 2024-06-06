@@ -22,6 +22,20 @@ func New(d tickets.TicketDataInterface) *TicketService {
 
 // Create
 func (ts *TicketService) Create(new_data tickets.Ticket) (*tickets.Ticket, error) {
+	// Get Data CheckEvent
+	checkEvent, err := ts.data.CheckEvent(new_data.EventID)
+
+	// Error Handling
+	if err != nil {
+		logrus.Error("Service : CheckEvent Error : ", err.Error())
+		return nil, errors.New("ERROR CheckEvent")
+	}
+
+	if len(checkEvent) == 0 {
+		logrus.Error("Service : Event does not exists")
+		return nil, errors.New("ERROR Event does not exists")
+	}
+
 	// Parse Ticket Date
 	layout := "2006-01-02"
 
@@ -34,7 +48,7 @@ func (ts *TicketService) Create(new_data tickets.Ticket) (*tickets.Ticket, error
 
 	new_data.ParseTicketDate = parse_ticketDate
 
-	// Get Data
+	// Get Data Create
 	create, err := ts.data.Create(new_data)
 
 	if err != nil {
