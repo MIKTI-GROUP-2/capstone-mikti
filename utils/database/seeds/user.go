@@ -11,7 +11,7 @@ func CreateUser(db *gorm.DB, username, email, phone_number string) error {
 	var countData int64
 	db.Table("users").Where("username = ?", "admin").Count(&countData)
 
-	if countData < 0 {
+	if countData < 1 {
 		enkrip := enkrip.New()
 		hashPass, _ := enkrip.HashPassword("password")
 		return db.Create(&users.User{
