@@ -58,6 +58,7 @@ func (td *TicketData) Create(new_data tickets.Ticket) (*tickets.Ticket, error) {
 		return nil, err
 	}
 
+	// Parse Ticket Date
 	new_data.TicketDate = new_data.ParseTicketDate.Format("2006-01-02")
 
 	return &new_data, nil
@@ -102,4 +103,33 @@ func (td *TicketData) GetByID(id int) ([]tickets.TicketInfo, error) {
 	}
 
 	return ticket, nil
+}
+
+// Update
+func (td *TicketData) Update(id int, new_data tickets.Ticket) (bool, error) {
+	// Query
+	err := td.db.Table("tickets").
+		Where("id = ?", id).
+		Updates(Ticket{
+			EventID:    new_data.EventID,
+			Name:       new_data.Name,
+			TicketDate: new_data.ParseTicketDate,
+			Quantity:   new_data.Quantity,
+			Price:      new_data.Price,
+		})
+
+	// Error Handling
+	if err := err.Error; err != nil {
+		logrus.Error("DATA : Error Update Ticket : ", err.Error())
+		return false, err
+	}
+
+	if err.RowsAffected == 0 {
+		logrus.Error("DATA : Record Not Found")
+		return false, nil
+	}
+
+	new_data.TicketDate = new_data.ParseTicketDate.Format("2006-01-02")
+
+	return true, nil
 }

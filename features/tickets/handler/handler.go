@@ -42,8 +42,8 @@ func (th *TicketHandler) Create() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid request body", nil))
 		}
 
-		// Get Entity
-		newTicket := tickets.Ticket{
+		// Create Ticket
+		createTicket := tickets.Ticket{
 			EventID:    request.EventID,
 			Name:       request.Name,
 			TicketDate: request.TicketDate,
@@ -52,14 +52,24 @@ func (th *TicketHandler) Create() echo.HandlerFunc {
 		}
 
 		// Call Service
-		create, err := th.service.Create(newTicket)
+		create, err := th.service.Create(createTicket)
 
 		if err != nil {
 			c.Logger().Error("Handler : Create Error : ", err.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Create process failed", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Create process success", create))
+		// Get Response
+		response := TicketResponse{
+			ID:         create.ID,
+			EventID:    create.EventID,
+			Name:       create.Name,
+			TicketDate: create.TicketDate,
+			Quantity:   create.Quantity,
+			Price:      create.Price,
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Create process success", response))
 	}
 }
 
@@ -107,5 +117,61 @@ func (th *TicketHandler) GetByID() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("GetByID process success", getById))
+	}
+}
+
+// Update
+func (th *TicketHandler) Update() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Validate Admin
+		is_admin := th.jwt.ValidateRole(c)
+
+		if !is_admin {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Only admin can access this endpoint", nil))
+		}
+
+		// Extract ticket.id from path parameter
+		ticket_id, _ := strconv.Atoi(c.Param("id"))
+
+		// Get Request
+		var request = new(UpdateTicketRequest)
+
+		if err := c.Bind(request); err != nil {
+			c.Logger().Error("Handler : Update Bind Error : ", err)
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid request body", nil))
+		}
+
+		// Update Ticket
+		updateTicket := tickets.Ticket{
+			EventID:    request.EventID,
+			Name:       request.Name,
+			TicketDate: request.TicketDate,
+			Quantity:   request.Quantity,
+			Price:      request.Price,
+		}
+
+		// Call Service
+		update, err := th.service.Update(ticket_id, updateTicket)
+
+		if err != nil {
+			c.Logger().Error("Handler : Update Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Update process failed", nil))
+		}
+
+		if !update {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse("No ticket found with the given ID", nil))
+		}
+
+		// Get Response
+		response := TicketResponse{
+			ID:         updateTicket.ID,
+			EventID:    updateTicket.EventID,
+			Name:       updateTicket.Name,
+			TicketDate: updateTicket.TicketDate,
+			Quantity:   updateTicket.Quantity,
+			Price:      updateTicket.Price,
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Update process success", response))
 	}
 }

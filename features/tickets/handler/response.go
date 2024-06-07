@@ -1,6 +1,6 @@
 package handler
 
-type CreateTicketResponse struct {
+type TicketResponse struct {
 	ID         uint   `json:"id"`
 	EventID    int    `json:"event_id"`
 	Name       string `json:"name"`
