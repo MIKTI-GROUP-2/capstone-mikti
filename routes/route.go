@@ -38,6 +38,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, th ti
 	groupTicket.GET("", th.GetAll(), JwtAuth)
 	groupTicket.GET("/:id", th.GetByID(), JwtAuth)
 	groupTicket.PUT("/:id", th.Update(), JwtAuth)
+	groupTicket.DELETE("/:id", th.Delete(), JwtAuth)
 
 	return e
 }

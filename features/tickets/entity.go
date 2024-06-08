@@ -40,6 +40,7 @@ type TicketHandlerInterface interface {
 	GetAll() echo.HandlerFunc
 	GetByID() echo.HandlerFunc
 	Update() echo.HandlerFunc
+	Delete() echo.HandlerFunc
 }
 
 // Service
@@ -48,6 +49,7 @@ type TicketServiceInterface interface {
 	GetAll() ([]TicketInfo, error)
 	GetByID(id int) ([]TicketInfo, error)
 	Update(id int, new_data Ticket) (bool, error)
+	Delete(id int) (bool, error)
 }
 
 // Repository
@@ -57,4 +59,5 @@ type TicketDataInterface interface {
 	GetAll() ([]TicketInfo, error)
 	GetByID(id int) ([]TicketInfo, error)
 	Update(id int, new_data Ticket) (bool, error)
+	Delete(id int) (bool, error)
 }

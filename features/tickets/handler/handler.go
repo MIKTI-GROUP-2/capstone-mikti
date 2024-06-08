@@ -35,15 +35,15 @@ func (th *TicketHandler) Create() echo.HandlerFunc {
 		}
 
 		// Get Request
-		var request = new(CreateTicketRequest)
+		var request CreateTicketRequest
 
-		if err := c.Bind(request); err != nil {
+		if err := c.Bind(&request); err != nil {
 			c.Logger().Error("Handler : Create Bind Error : ", err)
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid request body", nil))
 		}
 
-		// Create Ticket
-		createTicket := tickets.Ticket{
+		// New Data
+		new_data := tickets.Ticket{
 			EventID:    request.EventID,
 			Name:       request.Name,
 			TicketDate: request.TicketDate,
@@ -52,7 +52,7 @@ func (th *TicketHandler) Create() echo.HandlerFunc {
 		}
 
 		// Call Service
-		create, err := th.service.Create(createTicket)
+		create, err := th.service.Create(new_data)
 
 		if err != nil {
 			c.Logger().Error("Handler : Create Error : ", err.Error())
@@ -61,7 +61,6 @@ func (th *TicketHandler) Create() echo.HandlerFunc {
 
 		// Get Response
 		response := TicketResponse{
-			ID:         create.ID,
 			EventID:    create.EventID,
 			Name:       create.Name,
 			TicketDate: create.TicketDate,
@@ -106,10 +105,14 @@ func (th *TicketHandler) GetByID() echo.HandlerFunc {
 		}
 
 		// Extract ticket.id from path parameter
-		ticket_id, _ := strconv.Atoi(c.Param("id"))
+		id, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid ID", nil))
+		}
 
 		// Call Service
-		getById, err := th.service.GetByID(ticket_id)
+		getById, err := th.service.GetByID(id)
 
 		if err != nil {
 			c.Logger().Error("Handler : GetByID Error : ", err.Error())
@@ -131,18 +134,22 @@ func (th *TicketHandler) Update() echo.HandlerFunc {
 		}
 
 		// Extract ticket.id from path parameter
-		ticket_id, _ := strconv.Atoi(c.Param("id"))
+		id, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid ID", nil))
+		}
 
 		// Get Request
-		var request = new(UpdateTicketRequest)
+		var request UpdateTicketRequest
 
-		if err := c.Bind(request); err != nil {
-			c.Logger().Error("Handler : Update Bind Error : ", err)
+		if err := c.Bind(&request); err != nil {
+			c.Logger().Error("Handler : Create Bind Error : ", err)
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid request body", nil))
 		}
 
-		// Update Ticket
-		updateTicket := tickets.Ticket{
+		// New Data
+		new_data := tickets.Ticket{
 			EventID:    request.EventID,
 			Name:       request.Name,
 			TicketDate: request.TicketDate,
@@ -151,7 +158,7 @@ func (th *TicketHandler) Update() echo.HandlerFunc {
 		}
 
 		// Call Service
-		update, err := th.service.Update(ticket_id, updateTicket)
+		update, err := th.service.Update(id, new_data)
 
 		if err != nil {
 			c.Logger().Error("Handler : Update Error : ", err.Error())
@@ -162,16 +169,39 @@ func (th *TicketHandler) Update() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, helper.FormatResponse("No ticket found with the given ID", nil))
 		}
 
-		// Get Response
-		response := TicketResponse{
-			ID:         updateTicket.ID,
-			EventID:    updateTicket.EventID,
-			Name:       updateTicket.Name,
-			TicketDate: updateTicket.TicketDate,
-			Quantity:   updateTicket.Quantity,
-			Price:      updateTicket.Price,
+		return c.JSON(http.StatusOK, helper.FormatResponse("Update process success", update))
+	}
+}
+
+// Delete
+func (th *TicketHandler) Delete() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Validate Admin
+		is_admin := th.jwt.ValidateRole(c)
+
+		if !is_admin {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Only admin can access this endpoint", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Update process success", response))
+		// Extract ticket.id from path parameter
+		id, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid ID", nil))
+		}
+
+		// Call Service
+		update, err := th.service.Delete(id)
+
+		if err != nil {
+			c.Logger().Error("Handler : Update Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete process failed", nil))
+		}
+
+		if !update {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse("No ticket found with the given ID", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Delete process success", update))
 	}
 }

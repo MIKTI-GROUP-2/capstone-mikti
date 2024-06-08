@@ -2,6 +2,7 @@ package data
 
 import (
 	"capstone-mikti/features/tickets"
+	"errors"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -22,16 +23,15 @@ func New(db *gorm.DB) *TicketData {
 // CheckEvent
 func (td *TicketData) CheckEvent(event_id int) ([]tickets.Event, error) {
 	// Get Entity
-	var event = []tickets.Event{}
+	event := []tickets.Event{}
 
 	// Query
 	err := td.db.Table("events").
 		Where("events.id = ?", event_id).
-		Find(&event).Error
+		Scan(&event).Error
 
-	// Error Handling
 	if err != nil {
-		logrus.Error("DATA : CheckEvent Error : ", err.Error())
+		logrus.Error("Data : CheckEvent Error : ", err.Error())
 		return nil, err
 	}
 
@@ -52,9 +52,8 @@ func (td *TicketData) Create(new_data tickets.Ticket) (*tickets.Ticket, error) {
 	// Query
 	err := td.db.Create(ticket).Error
 
-	// Error Handling
 	if err != nil {
-		logrus.Error("DATA : Create Error : ", err.Error())
+		logrus.Error("Data : Create Error : ", err.Error())
 		return nil, err
 	}
 
@@ -67,17 +66,16 @@ func (td *TicketData) Create(new_data tickets.Ticket) (*tickets.Ticket, error) {
 // GetAll
 func (td *TicketData) GetAll() ([]tickets.TicketInfo, error) {
 	// Get Entity
-	var ticket = []tickets.TicketInfo{}
+	ticket := []tickets.TicketInfo{}
 
 	// Query
 	err := td.db.Table("tickets").
-		Select("tickets.id, tickets.event_id, events.event_title, tickets.name, tickets.ticket_date, tickets.quantity, tickets.price").
+		Select("tickets.*, events.event_title").
 		Joins("JOIN events on events.id = tickets.event_id").
-		Find(&ticket).Error
+		Scan(&ticket).Error
 
-	// Error Handling
 	if err != nil {
-		logrus.Error("DATA : GetAll Error : ", err.Error())
+		logrus.Error("Data : GetAll Error : ", err.Error())
 		return nil, err
 	}
 
@@ -87,18 +85,18 @@ func (td *TicketData) GetAll() ([]tickets.TicketInfo, error) {
 // GetByID
 func (td *TicketData) GetByID(id int) ([]tickets.TicketInfo, error) {
 	// Get Entity
-	var ticket = []tickets.TicketInfo{}
+	ticket := []tickets.TicketInfo{}
 
 	// Query
 	err := td.db.Table("tickets").
-		Select("tickets.id, tickets.event_id, events.event_title, tickets.name, tickets.ticket_date, tickets.quantity, tickets.price").
+		Select("tickets.*, events.event_title").
 		Joins("JOIN events on events.id = tickets.event_id").
 		Where("tickets.id = ?", id).
-		Find(&ticket).Error
+		Where("tickets.deleted_at is null").
+		Scan(&ticket).Error
 
-	// Error Handling
 	if err != nil {
-		logrus.Error("DATA : GetAll Error : ", err.Error())
+		logrus.Error("Data : GetByID Error : ", err.Error())
 		return nil, err
 	}
 
@@ -110,6 +108,7 @@ func (td *TicketData) Update(id int, new_data tickets.Ticket) (bool, error) {
 	// Query
 	err := td.db.Table("tickets").
 		Where("id = ?", id).
+		Where("tickets.deleted_at is null").
 		Updates(Ticket{
 			EventID:    new_data.EventID,
 			Name:       new_data.Name,
@@ -118,18 +117,38 @@ func (td *TicketData) Update(id int, new_data tickets.Ticket) (bool, error) {
 			Price:      new_data.Price,
 		})
 
-	// Error Handling
-	if err := err.Error; err != nil {
-		logrus.Error("DATA : Error Update Ticket : ", err.Error())
-		return false, err
+	if err.Error != nil {
+		logrus.Error("Data : Error Update : ", err.Error)
+		return false, err.Error
 	}
 
 	if err.RowsAffected == 0 {
-		logrus.Error("DATA : Record Not Found")
-		return false, nil
+		logrus.Warn("Data : Warning Update")
+		return false, errors.New("WARNING No Rows Affected")
 	}
 
 	new_data.TicketDate = new_data.ParseTicketDate.Format("2006-01-02")
+
+	return true, nil
+}
+
+// Delete
+func (td *TicketData) Delete(id int) (bool, error) {
+	// Get Model
+	ticket := new(Ticket)
+
+	// Query
+	err := td.db.Where("id = ?", id).Delete(&ticket)
+
+	if err.Error != nil {
+		logrus.Error("Data : Error Delete : ", err.Error)
+		return false, err.Error
+	}
+
+	if err.RowsAffected == 0 {
+		logrus.Warn("Data : Warning Delete")
+		return false, errors.New("WARNING No Rows Affected")
+	}
 
 	return true, nil
 }
