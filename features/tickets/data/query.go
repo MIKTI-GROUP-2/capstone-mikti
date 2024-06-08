@@ -72,6 +72,7 @@ func (td *TicketData) GetAll() ([]tickets.TicketInfo, error) {
 	err := td.db.Table("tickets").
 		Select("tickets.*, events.event_title").
 		Joins("JOIN events on events.id = tickets.event_id").
+		Where("tickets.deleted_at is null").
 		Scan(&ticket).Error
 
 	if err != nil {
