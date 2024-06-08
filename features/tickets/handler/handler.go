@@ -191,17 +191,17 @@ func (th *TicketHandler) Delete() echo.HandlerFunc {
 		}
 
 		// Call Service
-		update, err := th.service.Delete(id)
+		delete, err := th.service.Delete(id)
 
 		if err != nil {
 			c.Logger().Error("Handler : Update Error : ", err.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete process failed", nil))
 		}
 
-		if !update {
+		if !delete {
 			return c.JSON(http.StatusNotFound, helper.FormatResponse("No ticket found with the given ID", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Delete process success", update))
+		return c.JSON(http.StatusOK, helper.FormatResponse("Delete process success", delete))
 	}
 }
