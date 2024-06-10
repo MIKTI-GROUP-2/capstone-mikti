@@ -39,7 +39,7 @@ func (wh *WishlistHandler) Create() echo.HandlerFunc {
 		user_id := int(token.ID)
 
 		// Get Request
-		var request WishlistRequest
+		var request CreateWishlistRequest
 
 		if err := c.Bind(&request); err != nil {
 			c.Logger().Error("Handler : Create Bind Error : ", err)
@@ -61,7 +61,7 @@ func (wh *WishlistHandler) Create() echo.HandlerFunc {
 		}
 
 		// Get Response
-		response := WishlistResponse{
+		response := CreateWishlistResponse{
 			UserID:  create.UserID,
 			EventID: create.EventID,
 		}
@@ -91,7 +91,34 @@ func (wh *WishlistHandler) GetAll() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("GetAll process failed", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("GetAll process success", getAll))
+		// Get Response
+		var response []WishlistResponse
+
+		for _, wishlist := range getAll {
+			wishlistResponse := WishlistResponse{
+				ID: wishlist.ID,
+				Event: EventResponse{
+					ID: uint(wishlist.EventID),
+					Category: CategoryResponse{
+						ID:           uint(wishlist.CategoryID),
+						CategoryName: wishlist.CategoryName,
+					},
+					EventTitle:           wishlist.EventTitle,
+					StartDate:            wishlist.StartDate,
+					EndDate:              wishlist.EndDate,
+					City:                 wishlist.City,
+					StartingPrice:        wishlist.StartingPrice,
+					Description:          wishlist.Description,
+					Highlight:            wishlist.Highlight,
+					ImportantInformation: wishlist.ImportantInformation,
+					Address:              wishlist.Address,
+					ImageUrl:             wishlist.ImageUrl,
+				},
+			}
+			response = append(response, wishlistResponse)
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("GetAll process success", response))
 	}
 }
 
@@ -119,7 +146,34 @@ func (wh *WishlistHandler) GetByEventID() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("GetByEventID process failed", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("GetByEventID process success", getByEventId))
+		// Get Response
+		var response []WishlistResponse
+
+		for _, wishlist := range getByEventId {
+			wishlistResponse := WishlistResponse{
+				ID: wishlist.ID,
+				Event: EventResponse{
+					ID: uint(wishlist.EventID),
+					Category: CategoryResponse{
+						ID:           uint(wishlist.CategoryID),
+						CategoryName: wishlist.CategoryName,
+					},
+					EventTitle:           wishlist.EventTitle,
+					StartDate:            wishlist.StartDate,
+					EndDate:              wishlist.EndDate,
+					City:                 wishlist.City,
+					StartingPrice:        wishlist.StartingPrice,
+					Description:          wishlist.Description,
+					Highlight:            wishlist.Highlight,
+					ImportantInformation: wishlist.ImportantInformation,
+					Address:              wishlist.Address,
+					ImageUrl:             wishlist.ImageUrl,
+				},
+			}
+			response = append(response, wishlistResponse)
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("GetByEventID process success", response))
 	}
 }
 

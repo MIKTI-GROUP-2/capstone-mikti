@@ -98,10 +98,9 @@ func (wd *WishlistData) GetAll(user_id int) ([]wishlists.WishlistInfo, error) {
 			events.highlight,
 			events.important_information,
 			events.address,
-			events.image_url,
-			events.public_id`).
-		Joins("JOIN events ON events.id = wishlists.event_id").
-		Joins("JOIN categories ON categories.id = events.category_id").
+			events.image_url`).
+		Joins("LEFT JOIN events ON events.id = wishlists.event_id").
+		Joins("LEFT JOIN categories ON categories.id = events.category_id").
 		Where("wishlists.user_id = ?", user_id).
 		Where("wishlists.deleted_at is null").
 		Scan(&wishlist).Error
@@ -135,10 +134,9 @@ func (wd *WishlistData) GetByEventID(user_id int, event_id int) ([]wishlists.Wis
 			events.highlight,
 			events.important_information,
 			events.address,
-			events.image_url,
-			events.public_id`).
-		Joins("JOIN events ON events.id = wishlists.event_id").
-		Joins("JOIN categories ON categories.id = events.category_id").
+			events.image_url`).
+		Joins("LEFT JOIN events ON events.id = wishlists.event_id").
+		Joins("LEFT JOIN categories ON categories.id = events.category_id").
 		Where("wishlists.user_id = ?", user_id).
 		Where("wishlists.event_id = ?", event_id).
 		Where("wishlists.deleted_at is null").
