@@ -26,12 +26,12 @@ func (ts *TicketService) Create(new_data tickets.Ticket) (*tickets.Ticket, error
 	checkEvent, err := ts.data.CheckEvent(new_data.EventID)
 
 	if err != nil {
-		logrus.Error("Service : Error CheckEvent : ", err.Error())
+		logrus.Error("Service : CheckEvent Error : ", err.Error())
 		return nil, errors.New("ERROR CheckEvent")
 	}
 
 	if len(checkEvent) == 0 {
-		logrus.Warn("Service : Warning CheckEvent")
+		logrus.Warn("Service : CheckEvent Warning")
 		return nil, errors.New("WARNING Event Does Not Exists")
 	}
 
@@ -41,7 +41,7 @@ func (ts *TicketService) Create(new_data tickets.Ticket) (*tickets.Ticket, error
 	parse_ticketDate, err := time.Parse(layout, new_data.TicketDate)
 
 	if err != nil {
-		logrus.Error("Service : Error Parse Ticket Date : ", err.Error())
+		logrus.Error("Service : Parse Ticket Date Error : ", err.Error())
 		return nil, errors.New("ERROR Parse Ticket Date")
 	}
 
@@ -90,12 +90,12 @@ func (ts *TicketService) Update(id int, new_data tickets.Ticket) (bool, error) {
 	checkEvent, err := ts.data.CheckEvent(new_data.EventID)
 
 	if err != nil {
-		logrus.Error("Service : Error CheckEvent : ", err.Error())
+		logrus.Error("Service : CheckEvent Error : ", err.Error())
 		return false, errors.New("ERROR CheckEvent")
 	}
 
 	if len(checkEvent) == 0 {
-		logrus.Warn("Service : Warning CheckEvent")
+		logrus.Warn("Service : CheckEvent Warning")
 		return false, errors.New("WARNING Event Does Not Exists")
 	}
 
@@ -105,7 +105,7 @@ func (ts *TicketService) Update(id int, new_data tickets.Ticket) (bool, error) {
 	parse_ticketDate, err := time.Parse(layout, new_data.TicketDate)
 
 	if err != nil {
-		logrus.Error("Service : Error Parse Ticket Date : ", err.Error())
+		logrus.Error("Service : Parse Ticket Date Error : ", err.Error())
 		return false, errors.New("ERROR Parse Ticket Date")
 	}
 

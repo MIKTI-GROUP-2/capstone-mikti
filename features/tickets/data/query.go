@@ -28,7 +28,8 @@ func (td *TicketData) CheckEvent(event_id int) ([]tickets.Event, error) {
 	// Query
 	err := td.db.Table("events").
 		Where("events.id = ?", event_id).
-		Scan(&event).Error
+		Where("events.deleted_at is null").
+		Find(&event).Error
 
 	if err != nil {
 		logrus.Error("Data : CheckEvent Error : ", err.Error())
@@ -119,15 +120,16 @@ func (td *TicketData) Update(id int, new_data tickets.Ticket) (bool, error) {
 		})
 
 	if err.Error != nil {
-		logrus.Error("Data : Error Update : ", err.Error)
+		logrus.Error("Data : Update Error : ", err.Error)
 		return false, err.Error
 	}
 
 	if err.RowsAffected == 0 {
-		logrus.Warn("Data : Warning Update")
+		logrus.Warn("Data : Update Warning")
 		return false, errors.New("WARNING No Rows Affected")
 	}
 
+	// Parse Ticket Date
 	new_data.TicketDate = new_data.ParseTicketDate.Format("2006-01-02")
 
 	return true, nil
@@ -142,12 +144,12 @@ func (td *TicketData) Delete(id int) (bool, error) {
 	err := td.db.Where("id = ?", id).Delete(&ticket)
 
 	if err.Error != nil {
-		logrus.Error("Data : Error Delete : ", err.Error)
+		logrus.Error("Data : Delete Error : ", err.Error)
 		return false, err.Error
 	}
 
 	if err.RowsAffected == 0 {
-		logrus.Warn("Data : Warning Delete")
+		logrus.Warn("Data : Delete Warning")
 		return false, errors.New("WARNING No Rows Affected")
 	}
 

@@ -144,7 +144,7 @@ func (th *TicketHandler) Update() echo.HandlerFunc {
 		var request UpdateTicketRequest
 
 		if err := c.Bind(&request); err != nil {
-			c.Logger().Error("Handler : Create Bind Error : ", err)
+			c.Logger().Error("Handler : Update Bind Error : ", err)
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid request body", nil))
 		}
 
@@ -194,7 +194,7 @@ func (th *TicketHandler) Delete() echo.HandlerFunc {
 		delete, err := th.service.Delete(id)
 
 		if err != nil {
-			c.Logger().Error("Handler : Update Error : ", err.Error())
+			c.Logger().Error("Handler : Delete Error : ", err.Error())
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Delete process failed", nil))
 		}
 
