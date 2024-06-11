@@ -63,8 +63,8 @@ func (e *EventData) GetAll(title string, category string, times string, city str
 	var listEvent = []events.AllEvent{}
 
 	var query = e.db.Table("events").
-		Select("events.*, categories.category_name").
-		Joins("JOIN categories ON categories.id = events.category_id").
+		Select("events.*, categories.id as category_id, categories.category_name").
+		Joins("left join categories on categories.id = events.category_id").
 		Where("events.deleted_at is null")
 
 	layout := "2006-01-02"
@@ -117,7 +117,7 @@ func (e *EventData) GetDetail(id int) ([]events.Event, error) {
 
 	err := e.db.Table("events").
 		Select("events.*, categories.category_name").
-		Joins("JOIN categories ON categories.id = events.category_id").
+		Joins("left JOIN categories ON categories.id = events.category_id").
 		Where("events.id = ?", id).
 		Where("events.deleted_at is null").
 		First(&event).Error

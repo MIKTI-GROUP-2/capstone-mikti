@@ -114,7 +114,24 @@ func (e *EventHandler) GetAll() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get All proses Failed", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Get All Proses Succes", getAll))
+		var response []AllEventResponse
+		for _, event := range getAll {
+			eventResponse := AllEventResponse{
+				ID: event.ID,
+				Category: CategoryResponse{
+					ID:           uint(event.CategoryID),
+					CategoryName: event.CategoryName,
+				},
+				EventTitle:    event.EventTitle,
+				City:          event.City,
+				StartingPrice: event.StartingPrice,
+				StartDate:     event.StartDate,
+				EndDate:       event.EndDate,
+			}
+			response = append(response, eventResponse)
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Get All Proses Succes", response))
 	}
 }
 
@@ -136,7 +153,29 @@ func (e *EventHandler) GetDetail() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get Event proses Failed", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("Get Event Proses Succes", get))
+		var response []DetailEventResponse
+		for _, event := range get {
+			eventResponse := DetailEventResponse{
+				ID: event.ID,
+				Category: CategoryResponse{
+					ID:           uint(event.CategoryID),
+					CategoryName: event.CategoryName,
+				},
+				EventTitle:           event.EventTitle,
+				City:                 event.City,
+				Address:              event.Address,
+				StartingPrice:        event.StartingPrice,
+				StartDate:            event.StartDate,
+				EndDate:              event.EndDate,
+				Description:          event.Description,
+				Highlight:            event.Highlight,
+				ImportantInformation: event.ImportantInformation,
+				ImageUrl:             event.ImageUrl,
+			}
+			response = append(response, eventResponse)
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Get Event Proses Succes", response))
 
 	}
 }
