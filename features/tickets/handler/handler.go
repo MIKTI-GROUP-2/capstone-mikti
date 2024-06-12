@@ -75,13 +75,6 @@ func (th *TicketHandler) Create() echo.HandlerFunc {
 // GetAll
 func (th *TicketHandler) GetAll() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// Validate Admin
-		is_admin := th.jwt.ValidateRole(c)
-
-		if !is_admin {
-			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Only admin can access this endpoint", nil))
-		}
-
 		// Call Service
 		getAll, err := th.service.GetAll()
 
@@ -97,13 +90,6 @@ func (th *TicketHandler) GetAll() echo.HandlerFunc {
 // GetByID
 func (th *TicketHandler) GetByID() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// Validate Admin
-		is_admin := th.jwt.ValidateRole(c)
-
-		if !is_admin {
-			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Only admin can access this endpoint", nil))
-		}
-
 		// Extract ticket.id from path parameter
 		id, err := strconv.Atoi(c.Param("id"))
 
