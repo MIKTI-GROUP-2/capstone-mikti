@@ -60,7 +60,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupWishlist := group.Group("/wishlist")
 	groupWishlist.POST("", wh.Create(), JwtAuth)
 	groupWishlist.GET("", wh.GetAll(), JwtAuth)
-	groupWishlist.GET("/:id", wh.GetByID(), JwtAuth)
+	groupWishlist.GET("/:event_id", wh.GetByEventID(), JwtAuth)
 	groupWishlist.DELETE("/:event_id", wh.Delete(), JwtAuth)
 
 	return e

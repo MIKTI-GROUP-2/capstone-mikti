@@ -2,6 +2,7 @@ package data
 
 import (
 	"capstone-mikti/features/wishlists"
+	"errors"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -19,20 +20,38 @@ func New(db *gorm.DB) *WishlistData {
 	}
 }
 
+// CheckEvent
+func (wd *WishlistData) CheckEvent(event_id int) ([]wishlists.Event, error) {
+	// Get Entity
+	var event = []wishlists.Event{}
+
+	// Query
+	err := wd.db.Table("events").
+		Where("events.id = ?", event_id).
+		Where("events.deleted_at is null").
+		Find(&event).Error
+
+	if err != nil {
+		logrus.Error("Data : CheckEvent Error : ", err.Error())
+		return nil, err
+	}
+
+	return event, nil
+}
+
 // CheckUnique
-func (wd *WishlistData) CheckUnique(user_id, event_id int) ([]wishlists.Wishlist, error) {
+func (wd *WishlistData) CheckUnique(user_id int, event_id int) ([]wishlists.Wishlist, error) {
 	// Get Entity
 	var wishlist = []wishlists.Wishlist{}
 
 	// Query
 	err := wd.db.Table("wishlists").
-		Select("*").
 		Where("wishlists.user_id = ? AND wishlists.event_id = ?", user_id, event_id).
+		Where("wishlists.deleted_at is null").
 		Find(&wishlist).Error
 
-	// Error Handling
 	if err != nil {
-		logrus.Error("DATA : CheckUnique Error : ", err.Error())
+		logrus.Error("Data : CheckUnique Error : ", err.Error())
 		return nil, err
 	}
 
@@ -41,60 +60,90 @@ func (wd *WishlistData) CheckUnique(user_id, event_id int) ([]wishlists.Wishlist
 
 // Create
 func (wd *WishlistData) Create(user_id int, new_data wishlists.Wishlist) (*wishlists.Wishlist, error) {
-	// Get Entity
-	wishlist := &wishlists.Wishlist{
-		UserID:  user_id,
-		EventID: new_data.EventID,
-	}
+	// Get Model
+	wishlist := new(Wishlist)
+
+	wishlist.UserID = user_id
+	wishlist.EventID = new_data.EventID
 
 	// Query
 	err := wd.db.Create(wishlist).Error
 
-	// Error Handling
 	if err != nil {
-		logrus.Error("DATA : Create Error : ", err.Error())
+		logrus.Error("Data : Create Error : ", err.Error())
 		return nil, err
 	}
 
-	return wishlist, nil
+	return &new_data, nil
 }
 
 // GetAll
 func (wd *WishlistData) GetAll(user_id int) ([]wishlists.WishlistInfo, error) {
 	// Get Entity
-	var wishlist = []wishlists.WishlistInfo{}
+	wishlist := []wishlists.WishlistInfo{}
 
 	// Query
 	err := wd.db.Table("wishlists").
-		Select("wishlists.id, wishlists.user_id, wishlists.event_id, events.event_title").
-		Joins("JOIN events ON events.id = wishlists.event_id").
+		Select(`
+			wishlists.id,
+			wishlists.event_id,
+			events.event_title,
+			categories.id AS category_id,
+			categories.category_name,
+			events.start_date,
+			events.end_date,
+			events.city,
+			events.starting_price,
+			events.description,
+			events.highlight,
+			events.important_information,
+			events.address,
+			events.image_url`).
+		Joins("LEFT JOIN events ON events.id = wishlists.event_id").
+		Joins("LEFT JOIN categories ON categories.id = events.category_id").
 		Where("wishlists.user_id = ?", user_id).
-		Find(&wishlist).Error
+		Where("wishlists.deleted_at is null").
+		Scan(&wishlist).Error
 
-	// Error Handling
 	if err != nil {
-		logrus.Error("DATA : GetAll Error : ", err.Error())
+		logrus.Error("Data : GetAll Error : ", err.Error())
 		return nil, err
 	}
 
 	return wishlist, nil
 }
 
-// GetByID
-func (wd *WishlistData) GetByID(user_id, id int) ([]wishlists.WishlistInfo, error) {
+// GetByEventID
+func (wd *WishlistData) GetByEventID(user_id int, event_id int) ([]wishlists.WishlistInfo, error) {
 	// Get Entity
-	var wishlist = []wishlists.WishlistInfo{}
+	wishlist := []wishlists.WishlistInfo{}
 
 	// Query
 	err := wd.db.Table("wishlists").
-		Select("wishlists.id, wishlists.user_id, wishlists.event_id, events.event_title").
-		Joins("JOIN events ON events.id = wishlists.event_id").
-		Where("wishlists.user_id = ? AND wishlists.id = ?", user_id, id).
-		Find(&wishlist).Error
+		Select(`
+			wishlists.id,
+			wishlists.event_id,
+			events.event_title,
+			categories.id AS category_id,
+			categories.category_name,
+			events.start_date,
+			events.end_date,
+			events.city,
+			events.starting_price,
+			events.description,
+			events.highlight,
+			events.important_information,
+			events.address,
+			events.image_url`).
+		Joins("LEFT JOIN events ON events.id = wishlists.event_id").
+		Joins("LEFT JOIN categories ON categories.id = events.category_id").
+		Where("wishlists.user_id = ?", user_id).
+		Where("wishlists.event_id = ?", event_id).
+		Where("wishlists.deleted_at is null").
+		Scan(&wishlist).Error
 
-	// Error Handling
 	if err != nil {
-		logrus.Error("DATA : GetByID Error : ", err.Error())
+		logrus.Error("Data : GetByEventID Error : ", err.Error())
 		return nil, err
 	}
 
@@ -102,24 +151,23 @@ func (wd *WishlistData) GetByID(user_id, id int) ([]wishlists.WishlistInfo, erro
 }
 
 // Delete
-func (wd *WishlistData) Delete(user_id int, event_id int) error {
+func (wd *WishlistData) Delete(user_id int, event_id int) (bool, error) {
 	// Get Entity
-	var wishlist = &wishlists.Wishlist{}
+	wishlist := new(Wishlist)
 
 	// Query
 	err := wd.db.Where("user_id = ? AND event_id = ?", user_id, event_id).
-		Delete(wishlist)
+		Delete(&wishlist)
 
-	// Error Handling
 	if err.Error != nil {
-		logrus.Error("DATA : Delete Error : ", err.Error)
-		return err.Error
+		logrus.Error("Data : Delete Error : ", err.Error)
+		return false, err.Error
 	}
 
 	if err.RowsAffected == 0 {
-		logrus.Warn("DATA : Record Not Found : ")
-		return gorm.ErrRecordNotFound
+		logrus.Warn("Data : Delete Warning : ")
+		return false, errors.New("WARNING No Rows Affected")
 	}
 
-	return nil
+	return true, nil
 }
