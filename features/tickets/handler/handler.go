@@ -109,6 +109,28 @@ func (th *TicketHandler) GetByID() echo.HandlerFunc {
 	}
 }
 
+// GetByEventID
+func (th *TicketHandler) GetByEventID() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Extract ticket.event_id from path parameter
+		event_id, err := strconv.Atoi(c.Param("event_id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid ID", nil))
+		}
+
+		// Call Service
+		getByEventId, err := th.service.GetByEventID(event_id)
+
+		if err != nil {
+			c.Logger().Error("Handler : GetByEventID Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("GetByEventID process failed", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("GetByEventID process success", getByEventId))
+	}
+}
+
 // Update
 func (th *TicketHandler) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {

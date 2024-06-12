@@ -35,8 +35,9 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, th ti
 	// Route Ticket
 	groupTicket := group.Group("/ticket")
 	groupTicket.POST("", th.Create(), JwtAuth)
-	groupTicket.GET("", th.GetAll(), JwtAuth)
-	groupTicket.GET("/:id", th.GetByID(), JwtAuth)
+	groupTicket.GET("", th.GetAll())
+	groupTicket.GET("/:id", th.GetByID())
+	groupTicket.GET("/event_id/:event_id", th.GetByEventID())
 	groupTicket.PUT("/:id", th.Update(), JwtAuth)
 	groupTicket.DELETE("/:id", th.Delete(), JwtAuth)
 

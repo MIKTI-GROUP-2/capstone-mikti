@@ -105,6 +105,27 @@ func (td *TicketData) GetByID(id int) ([]tickets.TicketInfo, error) {
 	return ticket, nil
 }
 
+// GetByEventID
+func (td *TicketData) GetByEventID(event_id int) ([]tickets.TicketInfo, error) {
+	// Get Entity
+	ticket := []tickets.TicketInfo{}
+
+	// Query
+	err := td.db.Table("tickets").
+		Select("tickets.*, events.event_title").
+		Joins("JOIN events on events.id = tickets.event_id").
+		Where("tickets.event_id = ?", event_id).
+		Where("tickets.deleted_at is null").
+		Scan(&ticket).Error
+
+	if err != nil {
+		logrus.Error("Data : GetByEventID Error : ", err.Error())
+		return nil, err
+	}
+
+	return ticket, nil
+}
+
 // Update
 func (td *TicketData) Update(id int, new_data tickets.Ticket) (bool, error) {
 	// Query

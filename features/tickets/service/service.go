@@ -77,11 +77,24 @@ func (ts *TicketService) GetByID(id int) ([]tickets.TicketInfo, error) {
 	getById, err := ts.data.GetByID(id)
 
 	if err != nil {
-		logrus.Error("Service : GetAll Error : ", err.Error())
-		return nil, errors.New("ERROR GetAll")
+		logrus.Error("Service : GetByID Error : ", err.Error())
+		return nil, errors.New("ERROR GetByID")
 	}
 
 	return getById, nil
+}
+
+// GetByEventID
+func (ts *TicketService) GetByEventID(event_id int) ([]tickets.TicketInfo, error) {
+	// Call Data GetByEventID
+	getByEventId, err := ts.data.GetByEventID(event_id)
+
+	if err != nil {
+		logrus.Error("Service : GetByEventID Error : ", err.Error())
+		return nil, errors.New("ERROR GetByEventID")
+	}
+
+	return getByEventId, nil
 }
 
 // Update
