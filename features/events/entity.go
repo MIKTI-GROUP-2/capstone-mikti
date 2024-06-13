@@ -14,6 +14,7 @@ type TitleEvent struct {
 type PublicID struct {
 	PublicID string `json:"public_id"`
 }
+
 type AllEvent struct {
 	ID            uint   `json:"id"`
 	CategoryID    int    `json:"category_id"`

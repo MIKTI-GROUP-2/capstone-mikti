@@ -22,7 +22,10 @@ func New(db *gorm.DB) *EventData {
 func (ed *EventData) GetByTitle(title string) ([]events.TitleEvent, error) {
 	var dbData = []events.TitleEvent{}
 
-	var qry = ed.db.Table("events").Where("event_title = ?", title).Find(&dbData)
+	var qry = ed.db.Table("events").
+		Where("event_title = ?", title).
+		Where("deleted_at is null").
+		Find(&dbData)
 
 	if err := qry.Error; err != nil {
 		logrus.Error("DATA : Error Get By Title : ", err.Error())
@@ -63,8 +66,8 @@ func (e *EventData) GetAll(title string, category string, times string, city str
 	var listEvent = []events.AllEvent{}
 
 	var query = e.db.Table("events").
-		Select("events.*, categories.category_name").
-		Joins("JOIN categories ON categories.id = events.category_id").
+		Select("events.*, categories.id as category_id, categories.category_name").
+		Joins("left join categories on categories.id = events.category_id").
 		Where("events.deleted_at is null")
 
 	layout := "2006-01-02"
@@ -106,7 +109,7 @@ func (e *EventData) GetAll(title string, category string, times string, city str
 
 	if err := query.Scan(&listEvent).Error; err != nil {
 		logrus.Error("Data : Get All Error : ", err.Error())
-		return listEvent, err
+		return nil, err
 	}
 
 	return listEvent, nil
@@ -117,7 +120,7 @@ func (e *EventData) GetDetail(id int) ([]events.Event, error) {
 
 	err := e.db.Table("events").
 		Select("events.*, categories.category_name").
-		Joins("JOIN categories ON categories.id = events.category_id").
+		Joins("left JOIN categories ON categories.id = events.category_id").
 		Where("events.id = ?", id).
 		Where("events.deleted_at is null").
 		First(&event).Error
