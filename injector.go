@@ -8,6 +8,8 @@ import (
 	"capstone-mikti/features/categories"
 	"capstone-mikti/features/events"
 	"capstone-mikti/features/users"
+	"capstone-mikti/features/vouchers"
+	"capstone-mikti/features/wishlists"
 	"capstone-mikti/helper/email"
 	"capstone-mikti/helper/enkrip"
 	"capstone-mikti/helper/jwt"
@@ -19,6 +21,10 @@ import (
 	userHandler "capstone-mikti/features/users/handler"
 	userService "capstone-mikti/features/users/service"
 
+	wishlistData "capstone-mikti/features/wishlists/data"
+	wishlistHandler "capstone-mikti/features/wishlists/handler"
+	wishlistService "capstone-mikti/features/wishlists/service"
+
 	eventData "capstone-mikti/features/events/data"
 	eventHandler "capstone-mikti/features/events/handler"
 	eventService "capstone-mikti/features/events/service"
@@ -26,6 +32,10 @@ import (
 	categoryData "capstone-mikti/features/categories/data"
 	categoryHandler "capstone-mikti/features/categories/handler"
 	categoryService "capstone-mikti/features/categories/service"
+
+	voucherData "capstone-mikti/features/vouchers/data"
+	voucherHandler "capstone-mikti/features/vouchers/handler"
+	voucherService "capstone-mikti/features/vouchers/service"
 
 	"capstone-mikti/server"
 
@@ -64,6 +74,28 @@ var eventSet = wire.NewSet(
 	wire.Bind(new(events.EventHandlerInterface), new(*eventHandler.EventHandler)),
 )
 
+var voucherSet = wire.NewSet(
+	voucherData.New,
+	wire.Bind(new(vouchers.VoucherDataInterface), new(*voucherData.VoucherData)),
+
+	voucherService.New,
+	wire.Bind(new(vouchers.VoucherServiceInterface), new(*voucherService.VoucherService)),
+
+	voucherHandler.NewHandler,
+	wire.Bind(new(vouchers.VoucherHandlerInterface), new(*voucherHandler.VoucherHandler)),
+)
+
+var wishlistSet = wire.NewSet(
+	wishlistData.New,
+	wire.Bind(new(wishlists.WishlistDataInterface), new(*wishlistData.WishlistData)),
+
+	wishlistService.New,
+	wire.Bind(new(wishlists.WishlistServiceInterface), new(*wishlistService.WishlistService)),
+
+	wishlistHandler.NewHandler,
+	wire.Bind(new(wishlists.WishlistHandlerInterface), new(*wishlistHandler.WishlistHandler)),
+)
+
 func InitializedServer() *server.Server {
 	wire.Build(
 		configs.InitConfig,
@@ -77,6 +109,8 @@ func InitializedServer() *server.Server {
 		userSet,
 		eventSet,
 		categorySet,
+		voucherSet,
+		wishlistSet,
 
 		// JANGAN DIRUBAH
 		routes.NewRoute,

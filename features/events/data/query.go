@@ -38,7 +38,7 @@ func (ed *EventData) GetByTitle(title string) ([]events.TitleEvent, error) {
 func (ed *EventData) CreateEvent(newData events.Event) (*events.Event, error) {
 	var dbData = new(Event)
 
-	dbData.CategoryID = newData.CategoryID
+	dbData.CategoryID = uint(newData.CategoryID)
 	dbData.EventTitle = newData.EventTitle
 	dbData.City = newData.City
 	dbData.Address = newData.Address
@@ -139,7 +139,7 @@ func (e *EventData) UpdateEvent(id int, newData events.Event) (bool, error) {
 		Where("id = ?", id).
 		Where("deleted_at is null").
 		Updates(Event{
-			CategoryID:           newData.CategoryID,
+			CategoryID:           uint(newData.CategoryID),
 			EventTitle:           newData.EventTitle,
 			City:                 newData.City,
 			Address:              newData.Address,
