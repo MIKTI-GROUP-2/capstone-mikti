@@ -56,19 +56,19 @@ type BookingHandlerInterface interface {
 
 type BookingServiceInterface interface {
 	CreateBooking(newData Booking) (*Booking, error)
-	GetAll(status string) ([]Booking, error)
-	DeleteBooking(id int) (bool, error)
-	GetDetail(id int) (*Booking, error)
+	GetAll(status string, userID int) ([]Booking, error)
+	DeleteBooking(id int, userID int) (bool, error)
+	GetDetail(id int, userID int) (*Booking, error)
 }
 
 type BookingDataInterface interface {
 	CheckTicket(id int, quantity int) (*Ticket, error)
 	CheckBookingPaid(userId int) ([]Booking, error)
 	CreateBooking(newData Booking) (*Booking, error)
-	CreateBookingDetail(bookingId int, quantity int, price int) (bool, error)
-	ChangeQuantityTicket(id int, quntity int) (bool, error)
-	GetAll(status string) ([]Booking, error)
-	GetDetail(id int) (*Booking, error)
-	DeleteBooking(id int) (bool, error)
+	CreateBookingDetail(bookingId int, quantity int, price int) error
+	ChangeQuantityTicket(id int, quntity int) error
+	GetAll(status string, userID int) ([]Booking, error)
+	GetDetail(id int, userID int) (*Booking, error)
+	DeleteBooking(id int, userID int) (bool, error)
 	CheckBookingDetail(id int) (*BookingDetail, error)
 }

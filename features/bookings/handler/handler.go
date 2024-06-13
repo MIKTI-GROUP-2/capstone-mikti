@@ -79,9 +79,17 @@ func (bh *BookingHandler) CreateBooking() echo.HandlerFunc {
 
 func (bh *BookingHandler) GetAll() echo.HandlerFunc {
 	return func(c echo.Context) error {
+
+		token, err := bh.jwt.ExtractToken(c)
+		if err != nil {
+			c.Logger().Error("Handler : Extract Token Error : ", err)
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Unauthorized", nil))
+		}
+		userID := int(token.ID)
+
 		sort := c.QueryParam("status")
 
-		getAll, err := bh.service.GetAll(sort)
+		getAll, err := bh.service.GetAll(sort, userID)
 
 		if err != nil {
 			c.Logger().Info("Handler : Get All Error : ", err.Error())
@@ -115,11 +123,18 @@ func (bh *BookingHandler) DeleteBooking() echo.HandlerFunc {
 		id := c.Param("id")
 		bookingID, err := strconv.Atoi(id)
 
+		token, err := bh.jwt.ExtractToken(c)
+		if err != nil {
+			c.Logger().Error("Handler : Extract Token Error : ", err)
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Unauthorized", nil))
+		}
+		userID := int(token.ID)
+
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Booking ID", nil))
 		}
 
-		result, err := bh.service.DeleteBooking(bookingID)
+		result, err := bh.service.DeleteBooking(bookingID, userID)
 
 		if err != nil {
 			c.Logger().Info("Handler : Delete Booking Error : ", err.Error())
@@ -136,11 +151,18 @@ func (bh *BookingHandler) GetDetail() echo.HandlerFunc {
 		id := c.Param("id")
 		bookingID, err := strconv.Atoi(id)
 
+		token, err := bh.jwt.ExtractToken(c)
+		if err != nil {
+			c.Logger().Error("Handler : Extract Token Error : ", err)
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Unauthorized", nil))
+		}
+		userID := int(token.ID)
+
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid Booking ID", nil))
 		}
 
-		getDetail, err := bh.service.GetDetail(bookingID)
+		getDetail, err := bh.service.GetDetail(bookingID, userID)
 
 		if err != nil {
 			c.Logger().Info("Handler : Get Detail Booking Error : ", err.Error())

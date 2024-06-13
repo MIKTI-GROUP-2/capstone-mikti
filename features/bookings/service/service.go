@@ -65,14 +65,14 @@ func (b *BookingService) CreateBooking(newData bookings.Booking) (*bookings.Book
 		return nil, errors.New("Create Booking Failed")
 	}
 
-	_, err = b.data.CreateBookingDetail(resultBooking.ID, newData.Quantity, checkTicketData.Price)
+	err = b.data.CreateBookingDetail(resultBooking.ID, newData.Quantity, checkTicketData.Price)
 	if err != nil {
 		logrus.Error("Create Booking Detail Failed")
 		return nil, errors.New("Create Booking Detail Failed")
 	}
 
 	quantityNow := checkTicketData.Quantity - newData.Quantity
-	_, err = b.data.ChangeQuantityTicket(newData.TicketID, quantityNow)
+	err = b.data.ChangeQuantityTicket(newData.TicketID, quantityNow)
 	if err != nil {
 		logrus.Error("Change Quantity Ticket Failed")
 		return nil, errors.New("Change Quantity Ticket Failed")
@@ -81,8 +81,8 @@ func (b *BookingService) CreateBooking(newData bookings.Booking) (*bookings.Book
 	return resultBooking, nil
 }
 
-func (b *BookingService) GetAll(status string) ([]bookings.Booking, error) {
-	result, err := b.data.GetAll(status)
+func (b *BookingService) GetAll(status string, userID int) ([]bookings.Booking, error) {
+	result, err := b.data.GetAll(status, userID)
 
 	if err != nil {
 		logrus.Error("Get Booking Failed")
@@ -92,7 +92,7 @@ func (b *BookingService) GetAll(status string) ([]bookings.Booking, error) {
 	return result, nil
 }
 
-func (b *BookingService) DeleteBooking(id int) (bool, error) {
+func (b *BookingService) DeleteBooking(id int, userID int) (bool, error) {
 	checkBookingDetail, err := b.data.CheckBookingDetail(id)
 
 	if err != nil {
@@ -104,25 +104,25 @@ func (b *BookingService) DeleteBooking(id int) (bool, error) {
 
 	quantityNow := checkBookingDetail.Quantity + checkTicket.Quantity
 
-	_, err = b.data.ChangeQuantityTicket(checkTicket.ID, quantityNow)
+	err = b.data.ChangeQuantityTicket(checkTicket.ID, quantityNow)
 
 	if err != nil {
 		logrus.Error("Update Quantity Ticket Failed")
 		return false, errors.New("Update Quantity Ticket Failed")
 	}
 
-	_, err = b.data.DeleteBooking(id)
+	result, err := b.data.DeleteBooking(id, userID)
 
 	if err != nil {
 		logrus.Error("Service : Delete Booking Failed")
 		return false, errors.New("Error Delete Booking")
 	}
 
-	return true, nil
+	return result, nil
 }
 
-func (b *BookingService) GetDetail(id int) (*bookings.Booking, error) {
-	bookingDetail, err := b.data.GetDetail(id)
+func (b *BookingService) GetDetail(id int, userID int) (*bookings.Booking, error) {
+	bookingDetail, err := b.data.GetDetail(id, userID)
 
 	if err != nil {
 		logrus.Error("Service : Get Detail Booking Failed")

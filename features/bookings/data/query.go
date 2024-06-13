@@ -87,7 +87,7 @@ func (b *BookingData) CreateBooking(newData bookings.Booking) (*bookings.Booking
 	return result, nil
 }
 
-func (b *BookingData) CreateBookingDetail(bookingId int, quantity int, price int) (bool, error) {
+func (b *BookingData) CreateBookingDetail(bookingId int, quantity int, price int) error {
 
 	total := quantity * price
 
@@ -99,13 +99,13 @@ func (b *BookingData) CreateBookingDetail(bookingId int, quantity int, price int
 
 	if err := b.db.Table("booking_details").Create(dbData).Error; err != nil {
 		logrus.Error("DATA : Create Error : ", err.Error())
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
 
-func (b *BookingData) ChangeQuantityTicket(id int, quantity int) (bool, error) {
+func (b *BookingData) ChangeQuantityTicket(id int, quantity int) error {
 
 	var qry = b.db.Model(&bookings.Ticket{}).
 		Where("id = ?", id).
@@ -114,13 +114,13 @@ func (b *BookingData) ChangeQuantityTicket(id int, quantity int) (bool, error) {
 
 	if err := qry.Error; err != nil {
 		logrus.Error("Data : Error Update Quantity Ticket")
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
 
-func (b *BookingData) GetAll(status string) ([]bookings.Booking, error) {
+func (b *BookingData) GetAll(status string, userID int) ([]bookings.Booking, error) {
 	var result = []bookings.Booking{}
 
 	var qry = b.db.Table("bookings").
@@ -128,6 +128,7 @@ func (b *BookingData) GetAll(status string) ([]bookings.Booking, error) {
 		Joins("left join users on users.id = bookings.user_id").
 		Joins("left join tickets on tickets.id = bookings.ticket_id").
 		Joins("left join booking_details on booking_details.booking_id = bookings.id").
+		Where("bookings.user_id = ? ", userID).
 		Where("bookings.deleted_at is null")
 
 	switch status {
@@ -164,11 +165,11 @@ func (b *BookingData) CheckBookingDetail(id int) (*bookings.BookingDetail, error
 	return &dbData, nil
 }
 
-func (b *BookingData) DeleteBooking(id int) (bool, error) {
+func (b *BookingData) DeleteBooking(id int, userID int) (bool, error) {
 
 	var booking Booking
 
-	if err := b.db.Preload("BookingDetails").Where("is_paid = false").
+	if err := b.db.Preload("BookingDetails").Where("is_paid = false").Where("user_id = ? ", userID).
 		Where("deleted_at is null").First(&booking, id).Error; err != nil {
 		logrus.Error("Data : Get Booking Error : ", err.Error())
 		return false, err
@@ -176,6 +177,7 @@ func (b *BookingData) DeleteBooking(id int) (bool, error) {
 
 	if err := b.db.Select(clause.Associations).
 		Where("is_paid = false").
+		Where("user_id = ? ", userID).
 		Where("deleted_at is null").
 		Delete(&booking).Error; err != nil {
 		logrus.Error("Data : Delete Booking Error : ", err.Error())
@@ -185,7 +187,7 @@ func (b *BookingData) DeleteBooking(id int) (bool, error) {
 	return true, nil
 }
 
-func (b *BookingData) GetDetail(id int) (*bookings.Booking, error) {
+func (b *BookingData) GetDetail(id int, userID int) (*bookings.Booking, error) {
 	var booking bookings.Booking
 
 	var qry = b.db.Table("bookings").
@@ -195,6 +197,7 @@ func (b *BookingData) GetDetail(id int) (*bookings.Booking, error) {
 		Joins("left join booking_details on booking_details.booking_id = bookings.id").
 		Joins("left join events on events.id = tickets.event_id").
 		Where("bookings.id = ? ", id).
+		Where("bookings.user_id = ? ", userID).
 		Where("bookings.deleted_at is null").
 		First(&booking)
 
