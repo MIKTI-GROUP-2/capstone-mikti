@@ -117,11 +117,9 @@ func (e *EventHandler) GetAll() echo.HandlerFunc {
 		var response []AllEventResponse
 		for _, event := range getAll {
 			eventResponse := AllEventResponse{
-				ID: event.ID,
-				Category: CategoryResponse{
-					ID:           uint(event.CategoryID),
-					CategoryName: event.CategoryName,
-				},
+				ID:            event.ID,
+				CategoryID:    event.CategoryID,
+				CategoryName:  event.CategoryName,
 				EventTitle:    event.EventTitle,
 				City:          event.City,
 				StartingPrice: event.StartingPrice,
@@ -156,11 +154,9 @@ func (e *EventHandler) GetDetail() echo.HandlerFunc {
 		var response []DetailEventResponse
 		for _, event := range get {
 			eventResponse := DetailEventResponse{
-				ID: event.ID,
-				Category: CategoryResponse{
-					ID:           uint(event.CategoryID),
-					CategoryName: event.CategoryName,
-				},
+				ID:                   event.ID,
+				CategoryID:           event.CategoryID,
+				CategoryName:         event.CategoryName,
 				EventTitle:           event.EventTitle,
 				City:                 event.City,
 				Address:              event.Address,

@@ -22,7 +22,10 @@ func New(db *gorm.DB) *EventData {
 func (ed *EventData) GetByTitle(title string) ([]events.TitleEvent, error) {
 	var dbData = []events.TitleEvent{}
 
-	var qry = ed.db.Table("events").Where("event_title = ?", title).Find(&dbData)
+	var qry = ed.db.Table("events").
+		Where("event_title = ?", title).
+		Where("deleted_at is null").
+		Find(&dbData)
 
 	if err := qry.Error; err != nil {
 		logrus.Error("DATA : Error Get By Title : ", err.Error())
@@ -106,7 +109,7 @@ func (e *EventData) GetAll(title string, category string, times string, city str
 
 	if err := query.Scan(&listEvent).Error; err != nil {
 		logrus.Error("Data : Get All Error : ", err.Error())
-		return listEvent, err
+		return nil, err
 	}
 
 	return listEvent, nil

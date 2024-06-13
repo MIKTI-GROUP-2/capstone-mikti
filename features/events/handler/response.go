@@ -15,8 +15,9 @@ type EventResponse struct {
 }
 
 type DetailEventResponse struct {
-	ID                   uint `json:"id"`
-	Category             CategoryResponse
+	ID                   uint   `json:"id"`
+	CategoryID           int    `json:"category_id"`
+	CategoryName         string `json:"category_name"`
 	EventTitle           string `json:"event_title"`
 	StartDate            string `json:"start_date"`
 	EndDate              string `json:"end_date"`
@@ -29,14 +30,10 @@ type DetailEventResponse struct {
 	ImageUrl             string `json:"image_url"`
 }
 
-type CategoryResponse struct {
-	ID           uint   `json:"id"`
-	CategoryName string `json:"category_name"`
-}
-
 type AllEventResponse struct {
-	ID            uint `json:"id"`
-	Category      CategoryResponse
+	ID            uint   `json:"id"`
+	CategoryID    int    `json:"category_id"`
+	CategoryName  string `json:"category_name"`
 	EventTitle    string `json:"event_title"`
 	StartDate     string `json:"start_date"`
 	EndDate       string `json:"end_date"`
