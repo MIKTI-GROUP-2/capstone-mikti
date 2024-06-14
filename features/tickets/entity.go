@@ -8,8 +8,10 @@ import (
 
 // Entity for CheckEvent
 type Event struct {
-	ID         uint   `json:"event_id"`
-	EventTitle string `json:"event_title"`
+	ID         uint      `json:"event_id"`
+	EventTitle string    `json:"event_title"`
+	StartDate  time.Time `json:"start_date"`
+	EndDate    time.Time `json:"end_date"`
 }
 
 // Entity for Create, Update
@@ -56,7 +58,8 @@ type TicketServiceInterface interface {
 
 // Repository
 type TicketDataInterface interface {
-	CheckEvent(event_id int) ([]Event, error)
+	CheckEvent(event_id int, ticket_date time.Time) (bool, error)
+	CheckTicketDate(event_id int, ticket_date time.Time) (bool, error)
 	Create(new_data Ticket) (*Ticket, error)
 	GetAll() ([]TicketInfo, error)
 	GetByID(id int) ([]TicketInfo, error)

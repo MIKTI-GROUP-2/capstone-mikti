@@ -22,19 +22,6 @@ func New(d tickets.TicketDataInterface) *TicketService {
 
 // Create
 func (ts *TicketService) Create(new_data tickets.Ticket) (*tickets.Ticket, error) {
-	// Call Data CheckEvent
-	checkEvent, err := ts.data.CheckEvent(new_data.EventID)
-
-	if err != nil {
-		logrus.Error("Service : CheckEvent Error : ", err.Error())
-		return nil, errors.New("ERROR CheckEvent")
-	}
-
-	if len(checkEvent) == 0 {
-		logrus.Warn("Service : CheckEvent Warning")
-		return nil, errors.New("WARNING Event Does Not Exists")
-	}
-
 	// Parse Ticket Date
 	layout := "2006-01-02"
 
@@ -46,6 +33,32 @@ func (ts *TicketService) Create(new_data tickets.Ticket) (*tickets.Ticket, error
 	}
 
 	new_data.ParseTicketDate = parse_ticketDate
+
+	// Call Data CheckEvent
+	checkEvent, err := ts.data.CheckEvent(new_data.EventID, new_data.ParseTicketDate)
+
+	if err != nil {
+		logrus.Error("Service : CheckEvent Error : ", err.Error())
+		return nil, errors.New("ERROR CheckEvent")
+	}
+
+	if !checkEvent {
+		logrus.Warn("Service : CheckEvent Warning")
+		return nil, errors.New("WARNING Event Does Not Exists")
+	}
+
+	// Call Data CheckTicketDate
+	checkTicketDate, err := ts.data.CheckTicketDate(new_data.EventID, new_data.ParseTicketDate)
+
+	if err != nil {
+		logrus.Error("Service : CheckTicketDate Error : ", err.Error())
+		return nil, errors.New("ERROR CheckTicketDate")
+	}
+
+	if !checkTicketDate {
+		logrus.Warn("Service : CheckTicketDate Warning")
+		return nil, errors.New("WARNING Ticket Date Duplication")
+	}
 
 	// Call Data Create
 	create, err := ts.data.Create(new_data)
@@ -99,19 +112,6 @@ func (ts *TicketService) GetByEventID(event_id int) ([]tickets.TicketInfo, error
 
 // Update
 func (ts *TicketService) Update(id int, new_data tickets.Ticket) (bool, error) {
-	// Call Data CheckEvent
-	checkEvent, err := ts.data.CheckEvent(new_data.EventID)
-
-	if err != nil {
-		logrus.Error("Service : CheckEvent Error : ", err.Error())
-		return false, errors.New("ERROR CheckEvent")
-	}
-
-	if len(checkEvent) == 0 {
-		logrus.Warn("Service : CheckEvent Warning")
-		return false, errors.New("WARNING Event Does Not Exists")
-	}
-
 	// Parse Ticket Date
 	layout := "2006-01-02"
 
@@ -123,6 +123,32 @@ func (ts *TicketService) Update(id int, new_data tickets.Ticket) (bool, error) {
 	}
 
 	new_data.ParseTicketDate = parse_ticketDate
+
+	// Call Data CheckEvent
+	checkEvent, err := ts.data.CheckEvent(new_data.EventID, new_data.ParseTicketDate)
+
+	if err != nil {
+		logrus.Error("Service : CheckEvent Error : ", err.Error())
+		return false, errors.New("ERROR CheckEvent")
+	}
+
+	if !checkEvent {
+		logrus.Warn("Service : CheckEvent Warning")
+		return false, errors.New("WARNING Event Does Not Exists")
+	}
+
+	// Call Data CheckTicketDate
+	checkTicketDate, err := ts.data.CheckTicketDate(new_data.EventID, new_data.ParseTicketDate)
+
+	if err != nil {
+		logrus.Error("Service : CheckTicketDate Error : ", err.Error())
+		return false, errors.New("ERROR CheckTicketDate")
+	}
+
+	if !checkTicketDate {
+		logrus.Warn("Service : CheckTicketDate Warning")
+		return false, errors.New("WARNING Ticket Date Duplication")
+	}
 
 	// Call Data Update
 	update, err := ts.data.Update(id, new_data)

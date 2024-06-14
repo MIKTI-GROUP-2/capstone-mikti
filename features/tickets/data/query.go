@@ -3,6 +3,7 @@ package data
 import (
 	"capstone-mikti/features/tickets"
 	"errors"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -21,22 +22,59 @@ func New(db *gorm.DB) *TicketData {
 }
 
 // CheckEvent
-func (td *TicketData) CheckEvent(event_id int) ([]tickets.Event, error) {
+func (td *TicketData) CheckEvent(event_id int, ticket_date time.Time) (bool, error) {
 	// Get Entity
 	event := []tickets.Event{}
 
-	// Query
+	// Query to Validate Event ID is Stored in Table Event
 	err := td.db.Table("events").
 		Where("events.id = ?", event_id).
 		Where("events.deleted_at is null").
-		Find(&event).Error
+		Scan(&event).Error
 
 	if err != nil {
 		logrus.Error("Data : CheckEvent Error : ", err.Error())
-		return nil, err
+		return false, err
 	}
 
-	return event, nil
+	if len(event) == 0 {
+		logrus.Warn("Data : CheckEvent Warning")
+		return false, errors.New("WARNING Event ID is Not Found")
+	}
+
+	// Validate Ticket Date is in Range of Event Start Date & End Date
+	start_date := event[0].StartDate
+	end_date := event[0].EndDate
+
+	if ticket_date.Before(start_date) || ticket_date.After(end_date) {
+		logrus.Warn("Data: CheckEvent Warning")
+		return false, errors.New("WARNING Ticket Date is Out of Event Date Range")
+	}
+
+	return true, nil
+}
+
+// CheckTicketDate
+func (td *TicketData) CheckTicketDate(event_id int, ticket_date time.Time) (bool, error) {
+	// Query
+	var count int64
+
+	err := td.db.Table("tickets").
+		Where("tickets.event_id = ?", event_id).
+		Where("tickets.ticket_date = ?", ticket_date).
+		Where("tickets.deleted_at is null").
+		Count(&count).Error
+
+	if err != nil {
+		logrus.Error("Data : CheckTicketDate Error : ", err.Error())
+		return false, err
+	}
+
+	if count > 0 {
+		return false, errors.New("WARNING Duplicate Ticket Date on the same Event ID")
+	}
+
+	return true, nil
 }
 
 // Create
