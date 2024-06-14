@@ -41,17 +41,26 @@ func (td *TicketData) CheckEvent(event_id int, ticket_date time.Time) (bool, err
 		logrus.Warn("Data : CheckEvent Warning")
 		return false, errors.New("WARNING Event ID is Not Found")
 	}
-
 	// Validate Ticket Date is in Range of Event Start Date & End Date
 	start_date := event[0].StartDate
 	end_date := event[0].EndDate
 
-	if ticket_date.Before(start_date) || ticket_date.After(end_date) {
+	isCheck := validateTicketDate(start_date, end_date, ticket_date)
+
+	if !isCheck {
 		logrus.Warn("Data: CheckEvent Warning")
 		return false, errors.New("WARNING Ticket Date is Out of Event Date Range")
 	}
 
 	return true, nil
+}
+
+func validateTicketDate(start_date, end_date, ticket_date time.Time) bool {
+	if ticket_date.Before(start_date) || ticket_date.After(end_date) {
+		return false
+	}
+
+	return true
 }
 
 // CheckTicketDate
@@ -190,6 +199,29 @@ func (td *TicketData) Update(id int, new_data tickets.Ticket) (bool, error) {
 
 	// Parse Ticket Date
 	new_data.TicketDate = new_data.ParseTicketDate.Format("2006-01-02")
+
+	return true, nil
+}
+
+func (td *TicketData) UpdateQtyAndPrice(id int, new_data tickets.Ticket) (bool, error) {
+	// Query
+	err := td.db.Table("tickets").
+		Where("id = ?", id).
+		Where("tickets.deleted_at is null").
+		Updates(Ticket{
+			Quantity: new_data.Quantity,
+			Price:    new_data.Price,
+		})
+
+	if err.Error != nil {
+		logrus.Error("Data : Update Error : ", err.Error)
+		return false, err.Error
+	}
+
+	if err.RowsAffected == 0 {
+		logrus.Warn("Data : Update Warning")
+		return false, errors.New("WARNING No Rows Affected")
+	}
 
 	return true, nil
 }

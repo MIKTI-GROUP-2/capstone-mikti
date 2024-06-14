@@ -150,6 +150,17 @@ func (ts *TicketService) Update(id int, new_data tickets.Ticket) (bool, error) {
 		return false, errors.New("WARNING Ticket Date Duplication")
 	}
 
+	if !checkTicketDate {
+		update, err := ts.data.UpdateQtyAndPrice(id, new_data)
+
+		if err != nil {
+			logrus.Error("Service : Update Error : ", err.Error())
+			return false, errors.New("ERROR Update")
+		}
+
+		return update, nil
+	}
+
 	// Call Data Update
 	update, err := ts.data.Update(id, new_data)
 
