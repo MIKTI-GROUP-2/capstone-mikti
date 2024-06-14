@@ -59,7 +59,7 @@ type TicketServiceInterface interface {
 // Repository
 type TicketDataInterface interface {
 	CheckEvent(event_id int, ticket_date time.Time) (bool, error)
-	CheckTicketDate(event_id int, ticket_date time.Time) (bool, error)
+	CheckTicketDate(id int, event_id int, ticket_date time.Time) (bool, error)
 	Create(new_data Ticket) (*Ticket, error)
 	GetAll() ([]TicketInfo, error)
 	GetByID(id int) ([]TicketInfo, error)

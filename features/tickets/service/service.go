@@ -48,7 +48,7 @@ func (ts *TicketService) Create(new_data tickets.Ticket) (*tickets.Ticket, error
 	}
 
 	// Call Data CheckTicketDate
-	checkTicketDate, err := ts.data.CheckTicketDate(new_data.EventID, new_data.ParseTicketDate)
+	checkTicketDate, err := ts.data.CheckTicketDate(0, new_data.EventID, new_data.ParseTicketDate)
 
 	if err != nil {
 		logrus.Error("Service : CheckTicketDate Error : ", err.Error())
@@ -138,7 +138,7 @@ func (ts *TicketService) Update(id int, new_data tickets.Ticket) (bool, error) {
 	}
 
 	// Call Data CheckTicketDate
-	checkTicketDate, err := ts.data.CheckTicketDate(new_data.EventID, new_data.ParseTicketDate)
+	checkTicketDate, err := ts.data.CheckTicketDate(id, new_data.EventID, new_data.ParseTicketDate)
 
 	if err != nil {
 		logrus.Error("Service : CheckTicketDate Error : ", err.Error())

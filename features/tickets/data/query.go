@@ -55,17 +55,19 @@ func (td *TicketData) CheckEvent(event_id int, ticket_date time.Time) (bool, err
 }
 
 // CheckTicketDate
-func (td *TicketData) CheckTicketDate(event_id int, ticket_date time.Time) (bool, error) {
+func (td *TicketData) CheckTicketDate(id int, event_id int, ticket_date time.Time) (bool, error) {
 	// Query
 	var count int64
 
-	err := td.db.Table("tickets").
+	var query = td.db.Table("tickets").
 		Where("tickets.event_id = ?", event_id).
 		Where("tickets.ticket_date = ?", ticket_date).
-		Where("tickets.deleted_at is null").
-		Count(&count).Error
+		Where("tickets.deleted_at is null")
+	if id != 0 {
+		query.Where("tickets.id != ?", id)
+	}
 
-	if err != nil {
+	if err := query.Count(&count).Error; err != nil {
 		logrus.Error("Data : CheckTicketDate Error : ", err.Error())
 		return false, err
 	}
