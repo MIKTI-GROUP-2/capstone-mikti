@@ -5,6 +5,7 @@ package main
 
 import (
 	"capstone-mikti/configs"
+	"capstone-mikti/features/bookings"
 	"capstone-mikti/features/categories"
 	"capstone-mikti/features/events"
 	"capstone-mikti/features/users"
@@ -36,6 +37,10 @@ import (
 	voucherData "capstone-mikti/features/vouchers/data"
 	voucherHandler "capstone-mikti/features/vouchers/handler"
 	voucherService "capstone-mikti/features/vouchers/service"
+
+	bookingData "capstone-mikti/features/bookings/data"
+	bookingHandler "capstone-mikti/features/bookings/handler"
+	bookingService "capstone-mikti/features/bookings/service"
 
 	"capstone-mikti/server"
 
@@ -96,6 +101,17 @@ var wishlistSet = wire.NewSet(
 	wire.Bind(new(wishlists.WishlistHandlerInterface), new(*wishlistHandler.WishlistHandler)),
 )
 
+var bookingSet = wire.NewSet(
+	bookingData.New,
+	wire.Bind(new(bookings.BookingDataInterface), new(*bookingData.BookingData)),
+
+	bookingService.New,
+	wire.Bind(new(bookings.BookingServiceInterface), new(*bookingService.BookingService)),
+
+	bookingHandler.NewHandler,
+	wire.Bind(new(bookings.BookingHandlerInterface), new(*bookingHandler.BookingHandler)),
+)
+
 func InitializedServer() *server.Server {
 	wire.Build(
 		configs.InitConfig,
@@ -111,6 +127,7 @@ func InitializedServer() *server.Server {
 		categorySet,
 		voucherSet,
 		wishlistSet,
+		bookingSet,
 
 		// JANGAN DIRUBAH
 		routes.NewRoute,

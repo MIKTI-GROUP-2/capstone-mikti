@@ -8,6 +8,10 @@ package main
 
 import (
 	"capstone-mikti/configs"
+	"capstone-mikti/features/bookings"
+	data6 "capstone-mikti/features/bookings/data"
+	handler6 "capstone-mikti/features/bookings/handler"
+	service6 "capstone-mikti/features/bookings/service"
 	"capstone-mikti/features/categories"
 	data3 "capstone-mikti/features/categories/data"
 	handler3 "capstone-mikti/features/categories/handler"
@@ -62,7 +66,10 @@ func InitializedServer() *server.Server {
 	voucherData := data5.New(db)
 	voucherService := service5.New(voucherData)
 	voucherHandler := handler5.NewHandler(voucherService)
-	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, wishlistHandler, voucherHandler)
+	bookingData := data6.New(db)
+	bookingService := service6.New(bookingData, jwtInterface)
+	bookingHandler := handler6.NewHandler(bookingService, jwtInterface)
+	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, wishlistHandler, voucherHandler, bookingHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
 	return serverServer
 }
@@ -78,3 +85,5 @@ var eventSet = wire.NewSet(data2.New, wire.Bind(new(events.EventDataInterface), 
 var voucherSet = wire.NewSet(data5.New, wire.Bind(new(vouchers.VoucherDataInterface), new(*data5.VoucherData)), service5.New, wire.Bind(new(vouchers.VoucherServiceInterface), new(*service5.VoucherService)), handler5.NewHandler, wire.Bind(new(vouchers.VoucherHandlerInterface), new(*handler5.VoucherHandler)))
 
 var wishlistSet = wire.NewSet(data4.New, wire.Bind(new(wishlists.WishlistDataInterface), new(*data4.WishlistData)), service4.New, wire.Bind(new(wishlists.WishlistServiceInterface), new(*service4.WishlistService)), handler4.NewHandler, wire.Bind(new(wishlists.WishlistHandlerInterface), new(*handler4.WishlistHandler)))
+
+var bookingSet = wire.NewSet(data6.New, wire.Bind(new(bookings.BookingDataInterface), new(*data6.BookingData)), service6.New, wire.Bind(new(bookings.BookingServiceInterface), new(*service6.BookingService)), handler6.NewHandler, wire.Bind(new(bookings.BookingHandlerInterface), new(*handler6.BookingHandler)))

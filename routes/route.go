@@ -3,6 +3,7 @@ package routes
 import (
 	"capstone-mikti/configs"
 
+	"capstone-mikti/features/bookings"
 	"capstone-mikti/features/categories"
 	events "capstone-mikti/features/events"
 	"capstone-mikti/features/users"
@@ -13,7 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, wh wishlists.WishlistHandlerInterface, vh vouchers.VoucherHandlerInterface) *echo.Echo {
+func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, wh wishlists.WishlistHandlerInterface, vh vouchers.VoucherHandlerInterface, bh bookings.BookingHandlerInterface) *echo.Echo {
 	e := echo.New()
 
 	//Akses khusus harus login dlu
@@ -62,6 +63,13 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupWishlist.GET("", wh.GetAll(), JwtAuth)
 	groupWishlist.GET("/:event_id", wh.GetByEventID(), JwtAuth)
 	groupWishlist.DELETE("/:event_id", wh.Delete(), JwtAuth)
+
+	//Booking
+	groupBooking := group.Group("/booking")
+	groupBooking.POST("", bh.CreateBooking(), JwtAuth)
+	groupBooking.GET("", bh.GetAll(), JwtAuth)
+	groupBooking.GET("/:id", bh.GetDetail(), JwtAuth)
+	groupBooking.DELETE("/:id", bh.DeleteBooking(), JwtAuth)
 
 	return e
 }
