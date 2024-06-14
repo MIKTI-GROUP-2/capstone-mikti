@@ -65,5 +65,6 @@ type TicketDataInterface interface {
 	GetByID(id int) ([]TicketInfo, error)
 	GetByEventID(event_id int) ([]TicketInfo, error)
 	Update(id int, new_data Ticket) (bool, error)
+	UpdateQtyAndPrice(id int, new_data Ticket) (bool, error)
 	Delete(id int) (bool, error)
 }
