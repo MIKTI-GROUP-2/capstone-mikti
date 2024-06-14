@@ -16,10 +16,10 @@ type CloudinaryInterface interface {
 }
 
 type Cloudinary struct {
-	cfg configs.ProgrammingConfig
+	cfg *configs.ProgrammingConfig
 }
 
-func InitCloud(config configs.ProgrammingConfig) CloudinaryInterface {
+func InitCloud(config *configs.ProgrammingConfig) CloudinaryInterface {
 	return &Cloudinary{
 		cfg: config,
 	}
