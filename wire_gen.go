@@ -9,9 +9,9 @@ package main
 import (
 	"capstone-mikti/configs"
 	"capstone-mikti/features/bookings"
-	data6 "capstone-mikti/features/bookings/data"
-	handler6 "capstone-mikti/features/bookings/handler"
-	service6 "capstone-mikti/features/bookings/service"
+	data7 "capstone-mikti/features/bookings/data"
+	handler7 "capstone-mikti/features/bookings/handler"
+	service7 "capstone-mikti/features/bookings/service"
 	"capstone-mikti/features/categories"
 	data3 "capstone-mikti/features/categories/data"
 	handler3 "capstone-mikti/features/categories/handler"
@@ -20,14 +20,18 @@ import (
 	data2 "capstone-mikti/features/events/data"
 	handler2 "capstone-mikti/features/events/handler"
 	service2 "capstone-mikti/features/events/service"
+	"capstone-mikti/features/tickets"
+	data5 "capstone-mikti/features/tickets/data"
+	handler5 "capstone-mikti/features/tickets/handler"
+	service5 "capstone-mikti/features/tickets/service"
 	"capstone-mikti/features/users"
 	"capstone-mikti/features/users/data"
 	"capstone-mikti/features/users/handler"
 	"capstone-mikti/features/users/service"
 	"capstone-mikti/features/vouchers"
-	data5 "capstone-mikti/features/vouchers/data"
-	handler5 "capstone-mikti/features/vouchers/handler"
-	service5 "capstone-mikti/features/vouchers/service"
+	data6 "capstone-mikti/features/vouchers/data"
+	handler6 "capstone-mikti/features/vouchers/handler"
+	service6 "capstone-mikti/features/vouchers/service"
 	"capstone-mikti/features/wishlists"
 	data4 "capstone-mikti/features/wishlists/data"
 	handler4 "capstone-mikti/features/wishlists/handler"
@@ -63,13 +67,16 @@ func InitializedServer() *server.Server {
 	wishlistData := data4.New(db)
 	wishlistService := service4.New(wishlistData)
 	wishlistHandler := handler4.NewHandler(wishlistService, jwtInterface)
-	voucherData := data5.New(db)
-	voucherService := service5.New(voucherData)
-	voucherHandler := handler5.NewHandler(voucherService)
-	bookingData := data6.New(db)
-	bookingService := service6.New(bookingData, jwtInterface)
-	bookingHandler := handler6.NewHandler(bookingService, jwtInterface)
-	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, wishlistHandler, voucherHandler, bookingHandler)
+	ticketData := data5.New(db)
+	ticketService := service5.New(ticketData)
+	ticketHandler := handler5.NewHandler(ticketService, jwtInterface)
+	voucherData := data6.New(db)
+	voucherService := service6.New(voucherData)
+	voucherHandler := handler6.NewHandler(voucherService)
+	bookingData := data7.New(db)
+	bookingService := service7.New(bookingData, jwtInterface)
+	bookingHandler := handler7.NewHandler(bookingService, jwtInterface)
+	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, wishlistHandler, ticketHandler, voucherHandler, bookingHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
 	return serverServer
 }
@@ -82,8 +89,10 @@ var categorySet = wire.NewSet(data3.New, wire.Bind(new(categories.CategoryDataIn
 
 var eventSet = wire.NewSet(data2.New, wire.Bind(new(events.EventDataInterface), new(*data2.EventData)), service2.New, wire.Bind(new(events.EventServiceInterface), new(*service2.EventService)), handler2.NewHandler, wire.Bind(new(events.EventHandlerInterface), new(*handler2.EventHandler)))
 
-var voucherSet = wire.NewSet(data5.New, wire.Bind(new(vouchers.VoucherDataInterface), new(*data5.VoucherData)), service5.New, wire.Bind(new(vouchers.VoucherServiceInterface), new(*service5.VoucherService)), handler5.NewHandler, wire.Bind(new(vouchers.VoucherHandlerInterface), new(*handler5.VoucherHandler)))
+var voucherSet = wire.NewSet(data6.New, wire.Bind(new(vouchers.VoucherDataInterface), new(*data6.VoucherData)), service6.New, wire.Bind(new(vouchers.VoucherServiceInterface), new(*service6.VoucherService)), handler6.NewHandler, wire.Bind(new(vouchers.VoucherHandlerInterface), new(*handler6.VoucherHandler)))
 
 var wishlistSet = wire.NewSet(data4.New, wire.Bind(new(wishlists.WishlistDataInterface), new(*data4.WishlistData)), service4.New, wire.Bind(new(wishlists.WishlistServiceInterface), new(*service4.WishlistService)), handler4.NewHandler, wire.Bind(new(wishlists.WishlistHandlerInterface), new(*handler4.WishlistHandler)))
 
-var bookingSet = wire.NewSet(data6.New, wire.Bind(new(bookings.BookingDataInterface), new(*data6.BookingData)), service6.New, wire.Bind(new(bookings.BookingServiceInterface), new(*service6.BookingService)), handler6.NewHandler, wire.Bind(new(bookings.BookingHandlerInterface), new(*handler6.BookingHandler)))
+var bookingSet = wire.NewSet(data7.New, wire.Bind(new(bookings.BookingDataInterface), new(*data7.BookingData)), service7.New, wire.Bind(new(bookings.BookingServiceInterface), new(*service7.BookingService)), handler7.NewHandler, wire.Bind(new(bookings.BookingHandlerInterface), new(*handler7.BookingHandler)))
+
+var ticketSet = wire.NewSet(data5.New, wire.Bind(new(tickets.TicketDataInterface), new(*data5.TicketData)), service5.New, wire.Bind(new(tickets.TicketServiceInterface), new(*service5.TicketService)), handler5.NewHandler, wire.Bind(new(tickets.TicketHandlerInterface), new(*handler5.TicketHandler)))
