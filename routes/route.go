@@ -29,7 +29,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, ch ca
 	group.POST("/profile/update", uh.UpdateProfile(), JwtAuth)
 
 	//Route Event Category
-	group.GET("/categories", ch.GetCategories())
+	group.GET("/category", ch.GetCategories())
 	group.GET("/category/:id", ch.GetCategory())
 	group.POST("/category", ch.CreateCategory())
 	group.PUT("/category/:id", ch.UpdateCategory())
