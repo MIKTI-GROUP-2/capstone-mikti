@@ -23,7 +23,7 @@ type midtransService struct {
 	core coreapi.Client
 }
 
-func InitMidtrans(c configs.ProgrammingConfig) *midtransService {
+func InitMidtrans(c *configs.ProgrammingConfig) MidtransService {
 	var core coreapi.Client
 	var env midtrans.EnvironmentType
 	midtransEnv := c.MidtransEnv

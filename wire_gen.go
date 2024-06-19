@@ -20,6 +20,10 @@ import (
 	data2 "capstone-mikti/features/events/data"
 	handler2 "capstone-mikti/features/events/handler"
 	service2 "capstone-mikti/features/events/service"
+	"capstone-mikti/features/payments"
+	data8 "capstone-mikti/features/payments/data"
+	handler8 "capstone-mikti/features/payments/handler"
+	service8 "capstone-mikti/features/payments/service"
 	"capstone-mikti/features/tickets"
 	data5 "capstone-mikti/features/tickets/data"
 	handler5 "capstone-mikti/features/tickets/handler"
@@ -43,6 +47,7 @@ import (
 	"capstone-mikti/server"
 	"capstone-mikti/utils/cloudinary"
 	"capstone-mikti/utils/database"
+	"capstone-mikti/utils/midtrans"
 	"github.com/google/wire"
 )
 
@@ -72,11 +77,15 @@ func InitializedServer() *server.Server {
 	ticketHandler := handler5.NewHandler(ticketService, jwtInterface)
 	voucherData := data6.New(db)
 	voucherService := service6.New(voucherData)
-	voucherHandler := handler6.NewHandler(voucherService)
+	voucherHandler := handler6.NewHandler(voucherService, jwtInterface)
 	bookingData := data7.New(db)
 	bookingService := service7.New(bookingData, jwtInterface)
 	bookingHandler := handler7.NewHandler(bookingService, jwtInterface)
-	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, wishlistHandler, ticketHandler, voucherHandler, bookingHandler)
+	paymentData := data8.New(db)
+	midtransService := midtrans.InitMidtrans(programmingConfig)
+	paymentService := service8.New(paymentData, midtransService, voucherData, ticketData)
+	paymentHandler := handler8.NewHandler(paymentService, jwtInterface)
+	echo := routes.NewRoute(programmingConfig, userHandler, eventHandler, categoryHandler, wishlistHandler, ticketHandler, voucherHandler, bookingHandler, paymentHandler)
 	serverServer := server.InitServer(echo, programmingConfig)
 	return serverServer
 }
@@ -96,3 +105,5 @@ var wishlistSet = wire.NewSet(data4.New, wire.Bind(new(wishlists.WishlistDataInt
 var bookingSet = wire.NewSet(data7.New, wire.Bind(new(bookings.BookingDataInterface), new(*data7.BookingData)), service7.New, wire.Bind(new(bookings.BookingServiceInterface), new(*service7.BookingService)), handler7.NewHandler, wire.Bind(new(bookings.BookingHandlerInterface), new(*handler7.BookingHandler)))
 
 var ticketSet = wire.NewSet(data5.New, wire.Bind(new(tickets.TicketDataInterface), new(*data5.TicketData)), service5.New, wire.Bind(new(tickets.TicketServiceInterface), new(*service5.TicketService)), handler5.NewHandler, wire.Bind(new(tickets.TicketHandlerInterface), new(*handler5.TicketHandler)))
+
+var paymentSet = wire.NewSet(data8.New, wire.Bind(new(payments.PaymentDataInterface), new(*data8.PaymentData)), service8.New, wire.Bind(new(payments.PaymentServiceInterface), new(*service8.PaymentService)), handler8.NewHandler, wire.Bind(new(payments.PaymentHandlerInterface), new(*handler8.PaymentHandler)))

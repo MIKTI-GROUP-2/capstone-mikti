@@ -3,6 +3,8 @@ package handler
 import (
 	"capstone-mikti/features/vouchers"
 	"capstone-mikti/helper"
+	"capstone-mikti/helper/jwt"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -12,17 +14,24 @@ import (
 
 type VoucherHandler struct {
 	service vouchers.VoucherServiceInterface
+	jwt     jwt.JWTInterface
 }
 
-func NewHandler(s vouchers.VoucherServiceInterface) *VoucherHandler {
+func NewHandler(s vouchers.VoucherServiceInterface, j jwt.JWTInterface) *VoucherHandler {
 	return &VoucherHandler{
 		service: s,
+		jwt:     j,
 	}
 }
 
 // CreateVoucher handles the creation of a new voucher.
 func (v *VoucherHandler) CreateVoucher() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		if err := v.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Restricted Access", nil))
+		}
+
 		var input = new(InputRequest)
 		if err := c.Bind(input); err != nil {
 			logrus.Error(err.Error())
@@ -113,6 +122,11 @@ func (v *VoucherHandler) GetVoucherByCode() echo.HandlerFunc {
 // UpdateVoucher handles updating an existing voucher.
 func (v *VoucherHandler) UpdateVoucher() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		if err := v.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Restricted Access", nil))
+		}
+
 		id := c.Param("id")
 		voucherID, err := strconv.Atoi(id)
 		if err != nil {
@@ -152,6 +166,11 @@ func (v *VoucherHandler) UpdateVoucher() echo.HandlerFunc {
 // ActivateVoucher handles deleting an existing voucher.
 func (v *VoucherHandler) ActivateVoucher() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		if err := v.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Restricted Access", nil))
+		}
+
 		id := c.Param("id")
 		voucherID, err := strconv.Atoi(id)
 		if err != nil {
@@ -172,6 +191,11 @@ func (v *VoucherHandler) ActivateVoucher() echo.HandlerFunc {
 // DeactivateVoucher handles deleting an existing voucher.
 func (v *VoucherHandler) DeactivateVoucher() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		if err := v.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Restricted Access", nil))
+		}
+
 		id := c.Param("id")
 		voucherID, err := strconv.Atoi(id)
 		if err != nil {

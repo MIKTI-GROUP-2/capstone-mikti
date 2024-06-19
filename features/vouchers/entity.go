@@ -30,6 +30,7 @@ type UpdateVoucher struct {
 }
 
 type VoucherInfo struct {
+	ID          uint   `json:"id"`
 	Code        string `json:"code"`
 	Name        string `json:"name"`
 	Quantity    int    `json:"quantity"`
@@ -52,7 +53,7 @@ type VoucherHandlerInterface interface {
 type VoucherServiceInterface interface {
 	GetVouchers() ([]VoucherInfo, error)
 	GetVoucher(id int) ([]VoucherInfo, error)
-	GetVoucherByCode(code string) ([]VoucherInfo, error)
+	GetVoucherByCode(code string) (*VoucherInfo, error)
 	CreateVoucher(newData Voucher) (*Voucher, error)
 	UpdateVoucher(id int, newData UpdateVoucher) (bool, error)
 	ActivateVoucher(id int) (bool, error)
@@ -62,9 +63,11 @@ type VoucherServiceInterface interface {
 type VoucherDataInterface interface {
 	GetAll() ([]VoucherInfo, error)
 	GetByID(id int) ([]VoucherInfo, error)
-	GetByCode(code string) ([]VoucherInfo, error)
+	GetByCode(code string) (*VoucherInfo, error)
 	Create(newData Voucher) (*Voucher, error)
 	Update(id int, newData UpdateVoucher) (bool, error)
 	Activate(id int) (bool, error)
 	Deactivate(id int) (bool, error)
+
+	UpdateQuantity(voucherID uint) error
 }

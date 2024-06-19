@@ -2,6 +2,7 @@ package data
 
 import (
 	"capstone-mikti/features/vouchers"
+	"errors"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -68,8 +69,8 @@ func (vd *VoucherData) GetByID(id int) ([]vouchers.VoucherInfo, error) {
 	return voucher, nil
 }
 
-func (vd *VoucherData) GetByCode(code string) ([]vouchers.VoucherInfo, error) {
-	var voucher = []vouchers.VoucherInfo{}
+func (vd *VoucherData) GetByCode(code string) (*vouchers.VoucherInfo, error) {
+	var voucher vouchers.VoucherInfo
 
 	var qry = vd.db.Table("vouchers").Select("vouchers.*", "events.event_title").
 		Joins("LEFT JOIN events ON events.id = vouchers.event_id").
@@ -82,7 +83,7 @@ func (vd *VoucherData) GetByCode(code string) ([]vouchers.VoucherInfo, error) {
 		return nil, err
 	}
 
-	return voucher, nil
+	return &voucher, nil
 }
 
 func (vd *VoucherData) Update(id int, newData vouchers.UpdateVoucher) (bool, error) {
@@ -128,4 +129,36 @@ func (v *VoucherData) Activate(id int) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (v *VoucherData) UpdateQuantity(voucherID uint) error {
+	var listVoucher vouchers.Voucher
+
+	var qry = v.db.Table("vouchers").
+		Where("id = ?", voucherID).
+		Where("status = ?", true).
+		Scan(&listVoucher)
+
+	if err := qry.Error; err != nil {
+		logrus.Error("DATA : Error Get By ID : ", err.Error())
+		return err
+	}
+
+	newQuantity := listVoucher.Quantity - 1
+
+	var updates = v.db.Table("vouchers").Where("id = ?", voucherID).Updates(Voucher{
+		Quantity: newQuantity,
+	})
+
+	if errUpd := updates.Error; errUpd != nil {
+		logrus.Error("DATA : Error Update Data : ", errUpd.Error())
+		return errUpd
+	}
+
+	if dataCount := updates.RowsAffected; dataCount < 1 {
+		logrus.Error("DATA : Error No Data Update Affected")
+		return errors.New("ERROR No Data Update Affected")
+	}
+
+	return nil
 }
