@@ -48,14 +48,13 @@ func (ch *CategoryHandler) CreateCategory() echo.HandlerFunc {
 		result, error_service := ch.service.CreateCategory(*serviceInput)
 
 		if error_service != nil {
-			if strings.Contains(error_service.Error(), "Category Name Already Used") {
+			if strings.Contains(error_service.Error(), "ERROR category already created") {
 				return c.JSON(http.StatusBadRequest, helper.FormatResponse("Category Name already Existed", nil))
 			}
-			c.Logger().Info("Handler : Register Failed : ", error_service.Error())
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Register Process Failed", nil))
+			c.Logger().Info("Handler : Create Category Failed : ", error_service.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Create Category Process Failed", nil))
 		}
 		var response = new(CategoryResponse)
-		response.CategoryId = int(result.ID)
 		response.CategoryName = result.CategoryName
 
 		return c.JSON(http.StatusCreated, helper.FormatResponse("Success Creating New Category", response))
@@ -111,7 +110,6 @@ func (ch *CategoryHandler) GetCategory() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get Categories Error", nil))
 		}
 		response := new(CategoryResponse)
-		response.CategoryId = int(res.ID)
 		response.CategoryName = res.CategoryName
 		return c.JSON(http.StatusOK, helper.FormatResponse("This is the Detail of category", response))
 	}

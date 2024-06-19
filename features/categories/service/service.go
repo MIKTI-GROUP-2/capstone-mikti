@@ -21,7 +21,7 @@ func (c *CategoryService) CreateCategory(newData categories.Category) (*categori
 	_, err := c.data.GetByCategoryName(newData.CategoryName)
 	if err == nil {
 		logrus.Error("Service : Category already existed")
-		return nil, errors.New("ERROR category already created by another user")
+		return nil, errors.New("ERROR category already created")
 	}
 	result, err := c.data.CreateCategory(newData)
 	if err != nil {
