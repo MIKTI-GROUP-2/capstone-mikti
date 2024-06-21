@@ -29,7 +29,7 @@ func (ch *CategoryHandler) CreateCategory() echo.HandlerFunc {
 
 		if err := ch.jwt.ValidateRole(c); !err {
 			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Restricted Access", nil))
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Restricted Access", nil))
 		}
 
 		if err_bind := c.Bind(&input); err_bind != nil {
@@ -68,7 +68,7 @@ func (ch *CategoryHandler) UpdateCategory() echo.HandlerFunc {
 		var input = new(UpdateCategoryRequest)
 		if err := ch.jwt.ValidateRole(c); !err {
 			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Restricted Access", nil))
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Restricted Access", nil))
 		}
 
 		if err_bind := c.Bind(&input); err_bind != nil {
