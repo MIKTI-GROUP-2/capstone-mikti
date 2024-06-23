@@ -51,7 +51,7 @@ func (vs *VoucherService) GetVouchers() ([]vouchers.VoucherInfo, error) {
 	return result, nil
 }
 
-func (vs *VoucherService) GetVoucherByCode(code string) ([]vouchers.VoucherInfo, error) {
+func (vs *VoucherService) GetVoucherByCode(code string) (*vouchers.VoucherInfo, error) {
 	result, err := vs.data.GetByCode(code)
 	if err != nil {
 		logrus.Error("Service Error : ", err.Error())
