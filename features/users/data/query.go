@@ -190,3 +190,63 @@ func (ud *UserData) UpdateProfile(id int, newData users.UpdateProfile) (bool, er
 
 	return true, nil
 }
+
+func (ud *UserData) InsertCodeVerification(username, code string) error {
+	var newData = new(UserVerification)
+	newData.Username = username
+	newData.Code = code
+	newData.ExpiredAt = time.Now().Add(time.Minute * 10)
+
+	_, err := ud.GetByCodeVerification(code)
+	if err != nil {
+		ud.DeleteCodeVerfication(code)
+	}
+
+	if err := ud.db.Table("user_verifications").Create(newData).Error; err != nil {
+		logrus.Error("DATA : Error Create User Verification : ", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (ud *UserData) DeleteCodeVerfication(code string) error {
+	var deleteData = new(UserVerification)
+
+	if err := ud.db.Table("user_verification").Where("code = ? ", code).Delete(deleteData).Error; err != nil {
+		logrus.Error("DATA : Error Delete User Verification : ", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (ud *UserData) GetByCodeVerification(code string) (*users.UserVerification, error) {
+	var dbData = new(UserVerification)
+	dbData.Code = code
+
+	if err := ud.db.Table("user_verifications").Where("code = ?", dbData.Code).First(dbData).Error; err != nil {
+		logrus.Error("DATA : Error Get User Verifications : ", err.Error())
+	}
+
+	var result = new(users.UserVerification)
+	result.Username = dbData.Username
+	result.Code = dbData.Code
+	result.ExpiredAt = dbData.ExpiredAt
+
+	return result, nil
+}
+
+func (ud *UserData) UserVerification(code, username string) error {
+	if err := ud.db.Table("users").Where("username = ?", username).Update("status", true).Error; err != nil {
+		logrus.Error("DATA : Error Verification : ", err.Error())
+		return err
+	}
+
+	checkData, _ := ud.GetByCodeVerification(code)
+	if checkData.Code != "" {
+		ud.DeleteCodeVerfication(code)
+	}
+
+	return nil
+}

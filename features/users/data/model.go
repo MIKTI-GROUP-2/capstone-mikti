@@ -24,3 +24,9 @@ type UserResetPass struct {
 	Code      string    `gorm:"column:code;type:varchar(255)"`
 	ExpiredAt time.Time `gorm:"column:expired_at;type:timestamp"`
 }
+
+type UserVerification struct {
+	Username  string    `gorm:"column:username;type:varchar(255)"`
+	Code      string    `gorm:"column:code;type:varchar(255)"`
+	ExpiredAt time.Time `gorm:"column:expired_at;type:timestamp"`
+}

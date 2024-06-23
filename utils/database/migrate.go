@@ -16,6 +16,7 @@ import (
 func Migrate(db *gorm.DB) {
 	db.AutoMigrate(dataUser.User{})
 	db.AutoMigrate(dataUser.UserResetPass{})
+	db.AutoMigrate(dataUser.UserVerification{})
 	db.AutoMigrate(dataTicket.Ticket{})
 	db.AutoMigrate(dataCategory.Category{})
 	db.AutoMigrate(dataEvent.Event{})
