@@ -82,6 +82,11 @@ func (e *Email) htmlBodyEmail(username, code string) (string, string) {
 			<tr>
 				<td align="center">
 				<table align="center" cellpadding="0" cellspacing="0" width="600" style="border-spacing: 2px 5px;" bgcolor="#fff">
+				<tr>
+                        <td style="background-color: #fff; text-align: center; padding: 20px;">
+                            <img src="https://i.ibb.co.com/3RZSKjL/Golang-Email-Header.png" alt="Logo" style="width: 700px; height: auto;">
+                        </td>
+                    </tr>	
 					<tr>
 					<td bgcolor="#fff">
 						<table cellpadding="0" cellspacing="0" width="100%%">
@@ -149,6 +154,11 @@ func (e *Email) htmlBodyEmailVerification(username, code string) (string, string
 			<tr>
 				<td align="center">
 				<table align="center" cellpadding="0" cellspacing="0" width="600" style="border-spacing: 2px 5px;" bgcolor="#fff">
+				<tr>
+                        <td style="background-color: #fff; text-align: center; padding: 20px;">
+                            <img src="https://i.ibb.co.com/3RZSKjL/Golang-Email-Header.png" alt="Logo" style="width: 700px; height: auto;">
+                        </td>
+                    </tr>	
 					<tr>
 					<td bgcolor="#fff">
 						<table cellpadding="0" cellspacing="0" width="100%%">
