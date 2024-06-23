@@ -33,6 +33,12 @@ type UserResetPass struct {
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
+type UserVerification struct {
+	Username  string    `json:"username"`
+	Code      string    `json:"code"`
+	ExpiredAt time.Time `json:"expired_at"`
+}
+
 type UpdateProfile struct {
 	Username    string `json:"username"`
 	PhoneNumber string `json:"phone_number"`
@@ -47,6 +53,7 @@ type UserHandlerInterface interface {
 	UpdateProfile() echo.HandlerFunc
 	RefreshToken() echo.HandlerFunc
 	Profile() echo.HandlerFunc
+	UserVerification() echo.HandlerFunc
 }
 
 type UserServiceInterface interface {
@@ -57,6 +64,9 @@ type UserServiceInterface interface {
 	ResetPassword(code, username, password string) error
 	UpdateProfile(id int, newData UpdateProfile) (bool, error)
 	Profile(id int) (*User, error)
+	UserVerificationCode(username, email string) error
+	UserVerification(code, username string) error
+	TokenVerificationResetVerify(code string) (*UserVerification, error)
 }
 
 type UserDataInterface interface {
@@ -69,4 +79,8 @@ type UserDataInterface interface {
 	GetByCode(code string) (*UserResetPass, error)
 	ResetPassword(code, username, password string) error
 	UpdateProfile(id int, newData UpdateProfile) (bool, error)
+	InsertCodeVerification(username, code string) error
+	DeleteCodeVerfication(code string) error
+	GetByCodeVerification(code string) (*UserVerification, error)
+	UserVerification(code, username string) error
 }

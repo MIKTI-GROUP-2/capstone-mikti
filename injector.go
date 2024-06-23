@@ -8,6 +8,8 @@ import (
 	"capstone-mikti/features/bookings"
 	"capstone-mikti/features/categories"
 	"capstone-mikti/features/events"
+	"capstone-mikti/features/payments"
+	"capstone-mikti/features/tickets"
 	"capstone-mikti/features/users"
 	"capstone-mikti/features/vouchers"
 	"capstone-mikti/features/wishlists"
@@ -17,10 +19,19 @@ import (
 	"capstone-mikti/routes"
 	"capstone-mikti/utils/cloudinary"
 	"capstone-mikti/utils/database"
+	"capstone-mikti/utils/midtrans"
 
 	userData "capstone-mikti/features/users/data"
 	userHandler "capstone-mikti/features/users/handler"
 	userService "capstone-mikti/features/users/service"
+
+	ticketData "capstone-mikti/features/tickets/data"
+	ticketHandler "capstone-mikti/features/tickets/handler"
+	ticketService "capstone-mikti/features/tickets/service"
+
+	paymentData "capstone-mikti/features/payments/data"
+	paymentHandler "capstone-mikti/features/payments/handler"
+	paymentService "capstone-mikti/features/payments/service"
 
 	wishlistData "capstone-mikti/features/wishlists/data"
 	wishlistHandler "capstone-mikti/features/wishlists/handler"
@@ -112,6 +123,28 @@ var bookingSet = wire.NewSet(
 	wire.Bind(new(bookings.BookingHandlerInterface), new(*bookingHandler.BookingHandler)),
 )
 
+var ticketSet = wire.NewSet(
+	ticketData.New,
+	wire.Bind(new(tickets.TicketDataInterface), new(*ticketData.TicketData)),
+
+	ticketService.New,
+	wire.Bind(new(tickets.TicketServiceInterface), new(*ticketService.TicketService)),
+
+	ticketHandler.NewHandler,
+	wire.Bind(new(tickets.TicketHandlerInterface), new(*ticketHandler.TicketHandler)),
+)
+
+var paymentSet = wire.NewSet(
+	paymentData.New,
+	wire.Bind(new(payments.PaymentDataInterface), new(*paymentData.PaymentData)),
+
+	paymentService.New,
+	wire.Bind(new(payments.PaymentServiceInterface), new(*paymentService.PaymentService)),
+
+	paymentHandler.NewHandler,
+	wire.Bind(new(payments.PaymentHandlerInterface), new(*paymentHandler.PaymentHandler)),
+)
+
 func InitializedServer() *server.Server {
 	wire.Build(
 		configs.InitConfig,
@@ -120,14 +153,17 @@ func InitializedServer() *server.Server {
 		email.New,
 		jwt.NewJWT,
 		cloudinary.InitCloud,
+		midtrans.InitMidtrans,
 		// JANGAN DIRUBAH
 
 		userSet,
+		ticketSet,
 		eventSet,
 		categorySet,
 		voucherSet,
 		wishlistSet,
 		bookingSet,
+		paymentSet,
 
 		// JANGAN DIRUBAH
 		routes.NewRoute,

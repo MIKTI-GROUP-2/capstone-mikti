@@ -2,6 +2,8 @@ package routes
 
 import (
 	"capstone-mikti/configs"
+	"capstone-mikti/features/payments"
+	"capstone-mikti/features/tickets"
 
 	"capstone-mikti/features/bookings"
 	"capstone-mikti/features/categories"
@@ -14,7 +16,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, wh wishlists.WishlistHandlerInterface, vh vouchers.VoucherHandlerInterface, bh bookings.BookingHandlerInterface) *echo.Echo {
+func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, wh wishlists.WishlistHandlerInterface, th tickets.TicketHandlerInterface, vh vouchers.VoucherHandlerInterface, bh bookings.BookingHandlerInterface, ph payments.PaymentHandlerInterface) *echo.Echo {
 	e := echo.New()
 
 	//Akses khusus harus login dlu
@@ -29,6 +31,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	group.POST("/reset-password", uh.ResetPassword())
 	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
 	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
+	group.POST("/verification", uh.UserVerification())
 
 	// Route Profile
 	group.GET("/profile", uh.Profile(), JwtAuth)
@@ -47,6 +50,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupEvent.GET("/:id", eh.GetDetail())
 	groupEvent.PUT("/:id", eh.UpdateEvent(), JwtAuth)
 	groupEvent.DELETE("/:id", eh.DeleteEvent(), JwtAuth)
+	groupEvent.GET("/:event_id/ticket", th.GetByEventID())
 
 	// Route Group Voucher
 	groupVoucher := group.Group("/voucher")
@@ -64,12 +68,25 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupWishlist.GET("/:event_id", wh.GetByEventID(), JwtAuth)
 	groupWishlist.DELETE("/:event_id", wh.Delete(), JwtAuth)
 
+	// Route Ticket
+	groupTicket := group.Group("/ticket")
+	groupTicket.POST("", th.Create(), JwtAuth)
+	groupTicket.GET("", th.GetAll())
+	groupTicket.GET("/:id", th.GetByID())
+	groupTicket.PUT("/:id", th.Update(), JwtAuth)
+	groupTicket.DELETE("/:id", th.Delete(), JwtAuth)
+
 	//Booking
 	groupBooking := group.Group("/booking")
 	groupBooking.POST("", bh.CreateBooking(), JwtAuth)
 	groupBooking.GET("", bh.GetAll(), JwtAuth)
 	groupBooking.GET("/:id", bh.GetDetail(), JwtAuth)
 	groupBooking.DELETE("/:id", bh.DeleteBooking(), JwtAuth)
+
+	groupPayment := group.Group("/payment")
+	groupPayment.GET("", ph.GetAll(), JwtAuth)
+	groupPayment.POST("", ph.CreatePayment(), JwtAuth)
+	groupPayment.POST("/notif", ph.NotifPayment())
 
 	return e
 }
