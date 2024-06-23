@@ -45,7 +45,7 @@ func (u *UserService) Register(newData users.User) (*users.User, error) {
 
 	newData.Password = hashPassword
 	newData.IsAdmin = false
-	newData.Status = true
+	newData.Status = false
 
 	result, err := u.data.Register(newData)
 	if err != nil {
@@ -171,4 +171,47 @@ func (u *UserService) Profile(id int) (*users.User, error) {
 	}
 
 	return &res, nil
+}
+
+func (u *UserService) TokenVerificationResetVerify(code string) (*users.UserVerification, error) {
+	result, err := u.data.GetByCodeVerification(code)
+	if err != nil {
+		logrus.Error("Service : Error Get By Code : ", err.Error())
+		return nil, errors.New("ERROR Failed to verify token")
+	}
+
+	if result.ExpiredAt.Before(time.Now()) {
+		return nil, errors.New("ERROR Token Expired")
+	}
+
+	return result, nil
+}
+
+func (u *UserService) UserVerificationCode(username, email string) error {
+
+	header, htmlBody, code := u.email.HTMLBodyVerification(username)
+
+	if err := u.data.InsertCodeVerification(username, code); err != nil {
+		logrus.Error("Service : Error Insert Code : ", err.Error())
+		return errors.New("ERROR Insert Code Failed")
+	}
+
+	err := u.email.SendEmail(email, header, htmlBody)
+
+	if err != nil {
+		logrus.Error("Service : Error Send Email : ", err.Error())
+		return errors.New("ERROR Send Email")
+	}
+
+	return nil
+}
+
+func (u *UserService) UserVerification(code, username string) error {
+
+	if err := u.data.UserVerification(code, username); err != nil {
+		logrus.Error("Service : Verificaation User Error : ", err.Error())
+		return errors.New("ERROR Verification User")
+	}
+
+	return nil
 }

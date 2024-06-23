@@ -29,6 +29,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	group.POST("/reset-password", uh.ResetPassword())
 	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
 	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
+	group.POST("/verification", uh.UserVerification())
 
 	// Route Profile
 	group.GET("/profile", uh.Profile(), JwtAuth)
