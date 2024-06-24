@@ -172,3 +172,43 @@ func (u *UserService) Profile(id int) (*users.User, error) {
 
 	return &res, nil
 }
+
+func (u *UserService) GetAll() ([]users.User, error) {
+	result, err := u.data.GetAll()
+
+	if err != nil {
+		logrus.Error("Service Error: ", err)
+		return nil, errors.New("ERROR Get All Process Failed")
+	}
+
+	return result, nil
+}
+
+func (u *UserService) Activate(id int) (bool, error) {
+	res, err := u.data.Activate(id)
+	if err != nil {
+		logrus.Error("Service Error : ", err.Error())
+		return res, errors.New("ERROR Activate User")
+	}
+	return res, nil
+}
+
+func (u *UserService) Deactivate(id int) (bool, error) {
+	res, err := u.data.Deactivate(id)
+	if err != nil {
+		logrus.Error("Service Error : ", err.Error())
+		return res, errors.New("ERROR Deactivate User")
+	}
+	return res, nil
+}
+
+func (u *UserService) UserDashboard() (users.UserDashboard, error) {
+	res, err := u.data.UserDashboard()
+
+	if err != nil {
+		logrus.Error("Service Error : ", err.Error())
+		return res, errors.New("ERROR Process Failed")
+	}
+
+	return res, nil
+}

@@ -35,6 +35,12 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	group.GET("/profile", uh.Profile(), JwtAuth)
 	group.POST("/profile/update", uh.UpdateProfile(), JwtAuth)
 
+	// Route User - Admin
+	group.GET("/user", uh.GetUsers(), JwtAuth)
+	group.GET("/user/:id/activate", uh.ActivateUser(), JwtAuth)
+	group.GET("/user/:id/deactivate", uh.DeactivateUser(), JwtAuth)
+	group.GET("/user/dashboard", uh.UserDashboard(), JwtAuth)
+
 	//Route Event Category
 	group.GET("/category", ch.GetCategories(), JwtAuth)
 	group.GET("/category/:id", ch.GetCategory(), JwtAuth)

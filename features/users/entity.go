@@ -39,6 +39,13 @@ type UpdateProfile struct {
 	Email       string `json:"email"`
 }
 
+type UserDashboard struct {
+	TotalUser         int `json:"total_user"`
+	TotalUserBaru     int `json:"total_new_user"`
+	TotalUserActive   int `json:"total_active_user"`
+	TotalUserInactive int `json:"total_inactive_user"`
+}
+
 type UserHandlerInterface interface {
 	Register() echo.HandlerFunc
 	Login() echo.HandlerFunc
@@ -47,6 +54,12 @@ type UserHandlerInterface interface {
 	UpdateProfile() echo.HandlerFunc
 	RefreshToken() echo.HandlerFunc
 	Profile() echo.HandlerFunc
+
+	GetUsers() echo.HandlerFunc
+	ActivateUser() echo.HandlerFunc
+	DeactivateUser() echo.HandlerFunc
+
+	UserDashboard() echo.HandlerFunc
 }
 
 type UserServiceInterface interface {
@@ -57,6 +70,12 @@ type UserServiceInterface interface {
 	ResetPassword(code, username, password string) error
 	UpdateProfile(id int, newData UpdateProfile) (bool, error)
 	Profile(id int) (*User, error)
+
+	GetAll() ([]User, error)
+	Activate(id int) (bool, error)
+	Deactivate(id int) (bool, error)
+
+	UserDashboard() (UserDashboard, error)
 }
 
 type UserDataInterface interface {
@@ -69,4 +88,10 @@ type UserDataInterface interface {
 	GetByCode(code string) (*UserResetPass, error)
 	ResetPassword(code, username, password string) error
 	UpdateProfile(id int, newData UpdateProfile) (bool, error)
+
+	GetAll() ([]User, error)
+	Activate(id int) (bool, error)
+	Deactivate(id int) (bool, error)
+
+	UserDashboard() (UserDashboard, error)
 }

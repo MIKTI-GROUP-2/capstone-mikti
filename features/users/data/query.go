@@ -190,3 +190,70 @@ func (ud *UserData) UpdateProfile(id int, newData users.UpdateProfile) (bool, er
 
 	return true, nil
 }
+
+func (ud *UserData) GetAll() ([]users.User, error) {
+	var listUser = []users.User{}
+
+	if err := ud.db.Find(&listUser).Error; err != nil {
+		return nil, err
+	}
+
+	return listUser, nil
+}
+
+func (u *UserData) Activate(id int) (bool, error) {
+	var qry = u.db.Table("users").Where("id = ?", id).Updates(User{Status: true})
+
+	if err := qry.Error; err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (u *UserData) Deactivate(id int) (bool, error) {
+	var qry = u.db.Model(&User{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"Status": false,
+	})
+
+	if err := qry.Error; err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (u *UserData) UserDashboard() (users.UserDashboard, error) {
+	var dashboardUser users.UserDashboard
+
+	tUser, tUserBaru, tUserActive, tUserInactive := u.getTotalUser()
+
+	dashboardUser.TotalUser = tUser
+	dashboardUser.TotalUserBaru = tUserBaru
+	dashboardUser.TotalUserActive = tUserActive
+	dashboardUser.TotalUserInactive = tUserInactive
+
+	return dashboardUser, nil
+}
+
+func (pdata *UserData) getTotalUser() (int, int, int, int) {
+	var totalUser int64
+	var totalUserBaru int64
+	var totalUserActive int64
+	var totalUserInactive int64
+
+	var now = time.Now()
+	var before = now.AddDate(0, 0, -7)
+
+	var _ = pdata.db.Table("users").Count(&totalUser)
+	var _ = pdata.db.Table("users").Where("created_at BETWEEN ? and ?", before, now).Count(&totalUserBaru)
+	var _ = pdata.db.Table("users").Where("status = ?", true).Count(&totalUserActive)
+	var _ = pdata.db.Table("users").Where("status = ?", false).Count(&totalUserInactive)
+
+	totalUserInt := int(totalUser)
+	totalUserBaruInt := int(totalUserBaru)
+	totalUserActiveInt := int(totalUserActive)
+	totalUserInactiveInt := int(totalUserInactive)
+
+	return totalUserInt, totalUserBaruInt, totalUserActiveInt, totalUserInactiveInt
+}
