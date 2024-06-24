@@ -4,7 +4,9 @@ import (
 	"capstone-mikti/features/users"
 	"capstone-mikti/helper"
 	"capstone-mikti/helper/jwt"
+	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -259,6 +261,98 @@ func (u *UserHandler) Profile() echo.HandlerFunc {
 		response.PhoneNumber = res.PhoneNumber
 		response.Role = ext.Role
 		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Profile", response))
+	}
+}
+
+func (u *UserHandler) GetUsers() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if err := u.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Restricted Access", nil))
+		}
+
+		result, err := u.service.GetAll()
+
+		if err != nil {
+			c.Logger().Error("Handler : Get All Process Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Get All Process Error", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get All Data", result))
+	}
+}
+
+// ActivateUser handles deleting an existing user.
+func (u *UserHandler) ActivateUser() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if err := u.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Restricted Access", nil))
+		}
+
+		id := c.Param("id")
+		userID, err := strconv.Atoi(id)
+		if err != nil {
+			c.Logger().Info("Handler : Invalid ID : ", err.Error())
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid User ID", nil))
+		}
+
+		res, err := u.service.Activate(userID)
+		if err != nil {
+			c.Logger().Info("Handler : Activate User Failed : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Activate User Process Failed", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Activate User", res))
+	}
+}
+
+// DeactivateUser handles deleting an existing user.
+func (u *UserHandler) DeactivateUser() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if err := u.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Restricted Access", nil))
+		}
+
+		id := c.Param("id")
+		userID, err := strconv.Atoi(id)
+		if err != nil {
+			c.Logger().Info("Handler : Invalid ID : ", err.Error())
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid User ID", nil))
+		}
+
+		res, err := u.service.Deactivate(userID)
+		if err != nil {
+			c.Logger().Info("Handler : Deactivate User Failed : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Deactivate User Process Failed", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Deactivate User", res))
+	}
+}
+
+func (u *UserHandler) UserDashboard() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if err := u.jwt.ValidateRole(c); !err {
+			c.Logger().Info("Handler : Unauthorized Access : ", errors.New("you have no permission to access this feature"))
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("Restricted Access", nil))
+		}
+
+		res, err := u.service.UserDashboard()
+
+		if err != nil {
+			c.Logger().Error("Handler: Callback process error: ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Dashboard User Error", nil))
+		}
+
+		var response = new(DashboardResponse)
+		response.TotalUser = res.TotalUser
+		response.TotalUserBaru = res.TotalUserBaru
+		response.TotalUserActive = res.TotalUserActive
+		response.TotalUserInactive = res.TotalUserInactive
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Patient", response))
 	}
 }
 

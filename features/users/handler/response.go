@@ -17,3 +17,10 @@ type UserInfo struct {
 	Email       string `json:"email" form:"email" validate:"required"`
 	Role        string `json:"role" form:"role"`
 }
+
+type DashboardResponse struct {
+	TotalUser         int `json:"total_user"`
+	TotalUserBaru     int `json:"total_new_user"`
+	TotalUserActive   int `json:"total_active_user"`
+	TotalUserInactive int `json:"total_inactive_user"`
+}
