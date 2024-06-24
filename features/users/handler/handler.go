@@ -60,12 +60,19 @@ func (u *UserHandler) Register() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Register Process Failed", nil))
 		}
 
+		verificationCode := u.service.UserVerificationCode(input.Username, input.Email)
+
+		if verificationCode != nil {
+			logrus.Error("Handler : Send Email Error")
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Send Email Process Failed", nil))
+		}
+
 		var response = new(RegisterResponse)
 		response.Email = result.Email
 		response.Username = result.Username
 		response.PhoneNumber = result.PhoneNumber
 
-		return c.JSON(http.StatusCreated, helper.FormatResponse("Success Register", response))
+		return c.JSON(http.StatusCreated, helper.FormatResponse("Register Success, Please check your email to verification ", response))
 	}
 }
 
@@ -346,5 +353,36 @@ func (u *UserHandler) UserDashboard() echo.HandlerFunc {
 		response.TotalUserInactive = res.TotalUserInactive
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Success Get Patient", response))
+	}
+}
+
+// ResetPassword implements users.UserHandlerInterface.
+func (u *UserHandler) UserVerification() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.QueryParam("token_verification")
+		if token == "" {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Token Not Found", nil))
+		}
+
+		dataToken, err := u.service.TokenVerificationResetVerify(token)
+		if err != nil {
+			c.Logger().Info("Handler : Token Reset Error : ", err.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Token Reset Verifi Error", nil))
+		}
+
+		_, err = u.service.TokenVerificationResetVerify(token)
+		if err != nil {
+			c.Logger().Info("Handler : Token Verify Error : ", err.Error())
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Token Expired", nil))
+		}
+
+		result := u.service.UserVerification(dataToken.Code, dataToken.Username)
+
+		if result != nil {
+			c.Logger().Info("Handler : Verification User Error : ", result.Error())
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Verification User Error", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Success to verification, enable to login", result))
 	}
 }

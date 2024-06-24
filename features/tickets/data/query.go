@@ -248,3 +248,38 @@ func (td *TicketData) Delete(id int) (bool, error) {
 
 	return true, nil
 }
+
+func (td *TicketData) DecreementQty(ticket_id uint, qty int) error {
+	var ticket tickets.TicketInfo
+
+	// Query
+	err := td.db.Table("tickets").
+		Where("id = ?", ticket_id).
+		Where("deleted_at is null").
+		Scan(&ticket).Error
+
+	if err != nil {
+		logrus.Error("Data : GetByID Error : ", err.Error())
+		return err
+	}
+
+	newQty := ticket.Quantity - qty
+
+	var qry = td.db.Table("tickets").
+		Where("id = ?", ticket_id).
+		Updates(Ticket{
+			Quantity: newQty,
+		})
+
+	if err := qry.Error; err != nil {
+		logrus.Error("Data : GetByID Error : ", err.Error())
+		return err
+	}
+
+	if dataCount := qry.RowsAffected; dataCount < 1 {
+		logrus.Error("Data : No Data Affected")
+		return errors.New("ERROR No Data Affected")
+	}
+
+	return nil
+}

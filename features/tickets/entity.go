@@ -67,4 +67,6 @@ type TicketDataInterface interface {
 	Update(id int, new_data Ticket) (bool, error)
 	UpdateQtyAndPrice(id int, new_data Ticket) (bool, error)
 	Delete(id int) (bool, error)
+
+	DecreementQty(ticket_id uint, qty int) error
 }

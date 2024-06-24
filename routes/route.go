@@ -2,6 +2,7 @@ package routes
 
 import (
 	"capstone-mikti/configs"
+	"capstone-mikti/features/payments"
 	"capstone-mikti/features/tickets"
 
 	"capstone-mikti/features/bookings"
@@ -15,7 +16,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, wh wishlists.WishlistHandlerInterface, th tickets.TicketHandlerInterface, vh vouchers.VoucherHandlerInterface, bh bookings.BookingHandlerInterface) *echo.Echo {
+func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh events.EventHandlerInterface, ch categories.CategoryHandlerInterface, wh wishlists.WishlistHandlerInterface, th tickets.TicketHandlerInterface, vh vouchers.VoucherHandlerInterface, bh bookings.BookingHandlerInterface, ph payments.PaymentHandlerInterface) *echo.Echo {
 	e := echo.New()
 
 	//Akses khusus harus login dlu
@@ -30,6 +31,7 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	group.POST("/reset-password", uh.ResetPassword())
 	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
 	group.POST("/refresh-token", uh.RefreshToken(), JwtAuth)
+	group.POST("/verification", uh.UserVerification())
 
 	// Route Profile
 	group.GET("/profile", uh.Profile(), JwtAuth)
@@ -86,6 +88,11 @@ func NewRoute(c *configs.ProgrammingConfig, uh users.UserHandlerInterface, eh ev
 	groupBooking.GET("", bh.GetAll(), JwtAuth)
 	groupBooking.GET("/:id", bh.GetDetail(), JwtAuth)
 	groupBooking.DELETE("/:id", bh.DeleteBooking(), JwtAuth)
+
+	groupPayment := group.Group("/payment")
+	groupPayment.GET("", ph.GetAll(), JwtAuth)
+	groupPayment.POST("", ph.CreatePayment(), JwtAuth)
+	groupPayment.POST("/notif", ph.NotifPayment())
 
 	return e
 }

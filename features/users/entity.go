@@ -33,6 +33,12 @@ type UserResetPass struct {
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
+type UserVerification struct {
+	Username  string    `json:"username"`
+	Code      string    `json:"code"`
+	ExpiredAt time.Time `json:"expired_at"`
+}
+
 type UpdateProfile struct {
 	Username    string `json:"username"`
 	PhoneNumber string `json:"phone_number"`
@@ -60,6 +66,7 @@ type UserHandlerInterface interface {
 	DeactivateUser() echo.HandlerFunc
 
 	UserDashboard() echo.HandlerFunc
+	UserVerification() echo.HandlerFunc
 }
 
 type UserServiceInterface interface {
@@ -76,6 +83,9 @@ type UserServiceInterface interface {
 	Deactivate(id int) (bool, error)
 
 	UserDashboard() (UserDashboard, error)
+	UserVerificationCode(username, email string) error
+	UserVerification(code, username string) error
+	TokenVerificationResetVerify(code string) (*UserVerification, error)
 }
 
 type UserDataInterface interface {
@@ -94,4 +104,8 @@ type UserDataInterface interface {
 	Deactivate(id int) (bool, error)
 
 	UserDashboard() (UserDashboard, error)
+	InsertCodeVerification(username, code string) error
+	DeleteCodeVerfication(code string) error
+	GetByCodeVerification(code string) (*UserVerification, error)
+	UserVerification(code, username string) error
 }
